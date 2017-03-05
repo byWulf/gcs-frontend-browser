@@ -1,0 +1,19 @@
+.site-wrapper.fullscreen {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.site-wrapper.fullscreen > .site-container {
+    height: 100%;
+}
+
+.site-wrapper.fullscreen > .site-container nav {
+    margin-bottom: 0;
+}
+
+.site-wrapper.fullscreen > .site-container > .site-content {
+    flex-grow: 1;
+}

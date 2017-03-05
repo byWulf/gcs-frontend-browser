@@ -1,0 +1,18 @@
+<div class="container" *ngIf="game">
+    <div class="row">
+        <div class="col">
+            <h2>Partie erstellen: {{game.name}}</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p>{{game.description}}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <a [routerLink]="['/games']" class="btn btn-default">Zurück</a>
+            <button (click)="create()" class="btn btn-primary">Erstellen</button>
+        </div>
+    </div>
+</div>

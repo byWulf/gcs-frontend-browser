@@ -1,0 +1,43 @@
+<div *ngIf="match">
+    <div>
+        <div class="card-group">
+            <div class="card" *ngFor="let slot of match.slots; let i = index">
+                <div class="card-block"
+                     [style.backgroundColor]="TinyColor(slot.color).brighten(90).desaturate(20).toString()"
+                     [style.color]="TinyColor(slot.color).darken(10).desaturate(10).toString()">
+                    <h4 class="card-title" *ngIf="slot.user">{{slot.user.displayName}}</h4>
+                    <span class="text-muted" *ngIf="slot.user === null">Frei</span>
+                </div>
+                <div class="card-footer" *ngIf="match.state === MatchState.open && isLoggedIn() && isMe(slot.user) && !isMe(match.masterUser)">
+                    <button type="button" class="btn btn-danger btn-sm" (click)="leave()">Verlassen</button>
+                </div>
+                <div class="card-footer" *ngIf="match.state === MatchState.open && isLoggedIn() && slot.user === null && !isJoined()">
+                    <button type="button" class="btn btn-primary btn-sm" (click)="join(i)">Beitreten</button>
+                </div>
+                <div class="card-footer" *ngIf="match.state === MatchState.open && isLoggedIn() && slot.user === null && isJoined()">
+                    <button type="button" class="btn btn-secondary btn-sm" (click)="switchSlot(i)">Wechseln</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h2>
+                    Partie # {{match.id}}
+                    <small class="text-muted horizontalList">{{match.game.name}}</small>
+                    <small class="text-muted horizontalList" *ngIf="match.state === MatchState.open">Offen</small>
+                    <small class="text-muted horizontalList" *ngIf="match.state === MatchState.running">Läuft</small>
+                    <small class="text-muted horizontalList" *ngIf="match.state === MatchState.finished">Fertig</small>
+                    <small class="text-muted horizontalList" *ngIf="match.state === MatchState.canceled">Abgebrochen</small>
+                </h2>
+            </div>
+        </div>
+        <div class="row" *ngIf="match.state === MatchState.open && isLoggedIn() && isMe(match.masterUser)">
+            <div class="col">
+                <button type="button" class="btn btn-primary" (click)="start()">Starten</button>
+                <button type="button" class="btn btn-danger" (click)="cancel()">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+</div>

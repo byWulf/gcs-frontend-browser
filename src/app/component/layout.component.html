@@ -1,0 +1,8 @@
+<div class="site-wrapper" [class.fullscreen]="fullscreen">
+    <div class="site-container" [ngClass]="fullscreen ? ['d-flex', 'flex-column', 'justify-content-between'] : []">
+        <my-navbar></my-navbar>
+        <div class="site-content">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>
