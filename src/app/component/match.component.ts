@@ -74,7 +74,12 @@ export class MatchComponent implements OnInit, OnDestroy {
             if (data.key == 'state') {
                 this.match.state = data.data
             }
+
+            if (data.key == 'event') {
+                console.log("got event from game", data.data);
+            }
         });
+
     }
 
     ngOnDestroy(): void {

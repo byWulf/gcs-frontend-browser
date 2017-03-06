@@ -10,8 +10,13 @@
                 <div *ngFor="let game of games" class="card" style="width: 10rem;">
                     <img class="card-img-top" src="" alt="">
                     <div class="card-block">
-                        <h4 class="card-title">{{game.name}}</h4>
+                        <h4 class="card-title">
+                            {{game.name}}
+                            <small class="float-right text-muted version">{{game.version}}</small>
+                        </h4>
                         <p class="card-text">{{game.description}}</p>
+                        <p class="card-text text-muted" *ngIf="game.minPlayers == game.maxPlayers">Für {{game.minPlayers}} Spieler.</p>
+                        <p class="card-text text-muted" *ngIf="game.minPlayers != game.maxPlayers">Für {{game.minPlayers}} bis {{game.maxPlayers}} Spieler.</p>
                     </div>
                     <div class="card-footer">
                         <a [routerLink]="['/matches/create', game.key]" class="btn btn-primary" *ngIf="user.id > 0">Erstellen</a>
