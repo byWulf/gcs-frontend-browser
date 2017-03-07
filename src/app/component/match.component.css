@@ -1,3 +1,9 @@
 .horizontalList:nth-child(n+2):before {
     content: ' - ';
 }
+
+a-scene {
+    position: absolute;
+    left: 0;
+    top: 0;
+}

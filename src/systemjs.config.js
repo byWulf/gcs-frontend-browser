@@ -28,7 +28,8 @@
             'angular-in-memory-web-api': 'npm:angular-in-memory-web-api/bundles/in-memory-web-api.umd.js',
             'socket.io-client': 'npm:socket.io-client',
             'angular2-cookie': 'npm:angular2-cookie',
-            'tinycolor2': 'npm:tinycolor2'
+            'tinycolor2': 'npm:tinycolor2',
+            'three': 'npm:three'
         },
         // packages tells the System loader how to load when no filename and/or no extension
         packages: {
@@ -47,6 +48,10 @@
             },
             'tinycolor2': {
                 main: './dist/tinycolor-min.js'
+            },
+            'three': {
+                main: './build/three.js',
+                defaultExtension: 'js'
             }
         }
     });

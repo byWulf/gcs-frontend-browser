@@ -1,4 +1,4 @@
-import {NgModule} from "@angular/core";
+import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from "@angular/core";
 import {BrowserModule} from "@angular/platform-browser";
 import {FormsModule} from "@angular/forms";
 import {HttpModule} from "@angular/http";
@@ -44,7 +44,8 @@ import {CookieService} from "angular2-cookie/services/cookies.service";
         UserService,
         CookieService
     ],
-    bootstrap: [LayoutComponent]
+    bootstrap: [LayoutComponent],
+    schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })
 export class AppModule {
 }
