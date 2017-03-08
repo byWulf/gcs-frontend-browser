@@ -4,19 +4,16 @@ import {ActivatedRoute, Params} from '@angular/router';
 import 'rxjs/add/operator/switchMap';
 import { Subscription } from 'rxjs/Subscription';
 import * as TinyColor from 'tinycolor2';
-import * as THREE from 'three';
 
 import {Match, MatchState} from '../model/match';
 import {User} from '../model/user';
 import { EventCallbackError } from '../model/eventCallbackError';
-import { Element } from '../model/match/element';
-import { Parent } from '../model/match/parent';
+import { Visualization } from '../model/match/visualization';
 
 import {MatchService} from '../service/match.service';
 import {UserService} from '../service/user.service';
 import {CommunicationService} from '../service/communication.service';
-
-import * as ElementTypes from '../model/match/elementTypes';
+import {MatchVisualizationService} from '../service/matchVisualization.service';
 
 declare const $:JQueryStatic;
 
@@ -28,7 +25,7 @@ declare const $:JQueryStatic;
 })
 
 export class MatchComponent implements OnInit, OnDestroy {
-    @ViewChild('scene') scene: ElementRef;
+    @ViewChild('sceneContainer') sceneContainerRef: ElementRef;
 
     match: Match = null;
 
@@ -42,11 +39,14 @@ export class MatchComponent implements OnInit, OnDestroy {
 
     elements: Element[] = [];
 
+    visualization:Visualization;
+
     constructor(
         private matchService: MatchService,
         private route: ActivatedRoute,
         private userService: UserService,
-        private communicationService: CommunicationService
+        private communicationService: CommunicationService,
+        private matchVisualizationService: MatchVisualizationService
     ) {}
 
     ngOnInit(): void {
@@ -74,9 +74,6 @@ export class MatchComponent implements OnInit, OnDestroy {
             }
         });
 
-    }
-
-    ngAfterViewInit(): void {
         this.updateSub = this.communicationService.listen('match.update').subscribe(data => {
             if (!this.match) return;
 
@@ -93,27 +90,15 @@ export class MatchComponent implements OnInit, OnDestroy {
             }
         });
 
-        console.log("init", $('.sceneContainer'));
+    }
 
-        $( `<a-scene #scene>
-                <a-sky color="#6EBAA7"></a-sky>
-                <a-light type="ambient" intensity="0.5"></a-light>
-        
-                <a-entity position="0 1.3 0">
-                    <a-plane color="#CCB586" height="20" width="20" rotation="-90 0 0" shadow="cast: false; receive: true;"></a-plane>
-                    <a-light position="0 1 0" intensity="1" type="point" distance="2" light="castShadow: true;"></a-light>
-        
-                    <a-entity id="packageContainer" position="0 2 0"></a-entity>
-                    <a-entity id="centerContainer"></a-entity>
-                </a-entity>
-        
-                <a-camera rotation="-45 0 0" position="0 0 0.225" wasd-controls="enabled: false;" look-controls="enabled: false"></a-camera>
-        
-                <a-light type="directional" intensity="0.3" position="-10 10 10"></a-light>
-            </a-scene>`).appendTo('.sceneContainer');
+    ngAfterViewInit(): void {
+        this.visualization = this.matchVisualizationService.createWorld(this.sceneContainerRef.nativeElement);
     }
 
     ngOnDestroy(): void {
+        this.matchVisualizationService.destroyWorld(this.visualization);
+
         this.matchService.closeMatch().then(data => {
             if (data instanceof EventCallbackError) {
                 console.error('Error while closing match: ', data);
@@ -183,111 +168,22 @@ export class MatchComponent implements OnInit, OnDestroy {
     }
 
     lightenColor(color: string): string {
-        let newColor:string = TinyColor(color).brighten(80).desaturate(20).toString();
-        return newColor
-    }
-
-    private positionToVector(position:any): THREE.Vector3 {
-      return new THREE.Vector3(position.x, position.y, position.z);
-    }
-
-    private vectorToPosition(vector: THREE.Vector3): Object {
-      return {
-        x: vector.getComponent(0),
-        y: vector.getComponent(1),
-        z: vector.getComponent(2)
-      }
-    }
-
-    private sumVectors(elements: HTMLElement[]): THREE.Vector3 {
-      let vector = new THREE.Vector3();
-      for (let i = 0; i < elements.length; i++) {
-        let position = elements[i].getAttribute('position');
-        vector.add(this.positionToVector(position));
-      }
-
-      return vector;
-    }
-
-    private animateParentChange(element: JQuery, newParent: JQuery) {
-      let newParentParents = newParent.prop('tagName') == 'A-SCENE' ? [] : newParent.add(newParent.parentsUntil('a-scene')).toArray();
-      let elementParents = element.parentsUntil('a-scene').toArray();
-
-      console.log("animateParentChanges", newParent.prop('tagName'), newParentParents, elementParents);
-
-      let oldVector = this.sumVectors(elementParents);
-      let newVector = this.sumVectors(newParentParents);
-
-      let diff = oldVector.sub(newVector);
-
-      let newPosition = this.vectorToPosition(diff);
-
-      $(element).find('a-animate').remove();
-      $(element).appendTo(newParent);
-      $(element).append('<a-animation attribute="position" dur="1000" fill="forwards" from="' + diff.toArray().join(' ') + '" to="0 0 0"></a-animation>');
-    }
-
-    private moveElementToParent(element:Element, parent:Parent): void {
-        let parentElement = this.elements.find(element => parent.id == element.id);
-        let targetParent = $('a-entity#packageContainer');
-
-        if (parentElement && typeof parentElement.element.getTarget === 'function') {
-             let target:string = parentElement.element.getTarget(parent.data);
-
-             console.log("function -> target = ", target, '#' + parent.id);
-             targetParent = $('#' + parent.id + ' ' + target);
-        } else if ($('#' + parent.id).length) {
-            targetParent = $('#' + parent.id);
-        }
-
-        console.log('moveElementToParent', $('#' + element.id), targetParent);
-        this.animateParentChange($('#' + element.id), targetParent);
-    }
-
-    private addElement(id:string, type:string, parentData:any, elementData:any) {
-        let element:Element = new Element();
-        element.id = id;
-        element.type = type;
-
-        let parent = new Parent();
-        parent.id = parentData.id;
-        parent.data = parentData.data;
-        element.parent = parent;
-
-        let elementType = new ElementTypes[element.type](elementData);
-        element.element = elementType;
-
-        this.elements.push(element);
-
-        let domElement = $('<a-entity></a-entity>');
-        domElement.attr('id', id);
-        domElement.append(elementType.render());
-
-        $('a-entity#packageContainer').append(domElement);
-        this.moveElementToParent(element, parent);
+        return TinyColor(color).brighten(80).desaturate(20).toString();
     }
 
     private handleGameEvent(data: any): void {
-        console.log("got event from game", data);
+        //console.log("got event from game", data);
 
         if (data.event == 'element.added') {
-            this.addElement(data.id, data.type, data.parent, data.element);
+            this.matchVisualizationService.addElement(this.visualization, data.id, data.type, data.parent, data.element);
         }
 
         if (data.event == 'element.moved') {
-            let newParent:Parent = data.parent;
-
-            let element:Element = this.elements.find(element => element.id == data.id);
-            element.parent = newParent;
-
-            this.moveElementToParent(element, newParent);
+            this.matchVisualizationService.moveElement(this.visualization, data.id, data.parent);
         }
 
         if (data.event == 'element.removed') {
-            let index = this.elements.findIndex(element => element.id == data.id);
-            if (index > -1) this.elements.splice(index, 1);
-
-            $('#' + data.id).remove();
+            this.matchVisualizationService.removeElement(this.visualization, data.id);
         }
     }
 }

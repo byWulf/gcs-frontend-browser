@@ -1,4 +1,5 @@
 import { ElementTypeInterface } from './elementTypeInterface';
+import { Group, ConeGeometry, MeshPhongMaterial, Mesh } from 'three';
 
 export class piece_v1 implements ElementTypeInterface {
     width: number;
@@ -6,21 +7,30 @@ export class piece_v1 implements ElementTypeInterface {
     depth: number;
     model: string;
 
+    object: Group;
+
     constructor(private data: any) {
         this.width = data.width;
         this.height = data.height;
         this.depth = data.depth;
         this.model = data.model;
+
+        this.object = new Group();
+        this.object.name = 'piece_v1';
+
+        let geometry = new ConeGeometry(this.width, this.height, 16);
+        let material = new MeshPhongMaterial({color: '#cccc00', shininess: 0});
+        let mesh = new Mesh(geometry, material);
+        mesh.position.y = this.height / 2;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        this.object.add(mesh);
     }
 
-    render(): string {
-        return `<a-cone 
-                    color="#cccc00" 
-                    scale="${this.width} ${this.height} ${this.depth}" 
-                    position="0 ${this.height / 2} 0" 
-                    radius-bottom="1" 
-                    radius-top="0.1"
-                    shadow="cast: true; receive: false;"
-                ></a-cone>`;
+    /**
+     * @inheritDoc
+     */
+    getTargetObject(data:any): Group {
+        return null;
     }
 }

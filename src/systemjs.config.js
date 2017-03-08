@@ -29,7 +29,8 @@
             'socket.io-client': 'npm:socket.io-client',
             'angular2-cookie': 'npm:angular2-cookie',
             'tinycolor2': 'npm:tinycolor2',
-            'three': 'npm:three'
+            'three': 'npm:three',
+            'tween.js': 'npm:tween.js'
         },
         // packages tells the System loader how to load when no filename and/or no extension
         packages: {
@@ -51,6 +52,10 @@
             },
             'three': {
                 main: './build/three.js',
+                defaultExtension: 'js'
+            },
+            'tween.js': {
+                main: './src/Tween.js',
                 defaultExtension: 'js'
             }
         }

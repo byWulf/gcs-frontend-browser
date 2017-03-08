@@ -18,6 +18,8 @@ import {MatchService} from "./service/match.service";
 import {CommunicationService} from "./service/communication.service";
 import {UserService} from "./service/user.service";
 import {CookieService} from "angular2-cookie/services/cookies.service";
+import {WindowRefService} from "./service/windowRef.service";
+import {MatchVisualizationService} from "./service/matchVisualization.service";
 
 
 @NgModule({
@@ -42,10 +44,11 @@ import {CookieService} from "angular2-cookie/services/cookies.service";
         MatchService,
         CommunicationService,
         UserService,
-        CookieService
+        CookieService,
+        WindowRefService,
+        MatchVisualizationService
     ],
-    bootstrap: [LayoutComponent],
-    schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
+    bootstrap: [LayoutComponent]
 })
 export class AppModule {
 }

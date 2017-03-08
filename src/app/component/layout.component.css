@@ -16,4 +16,5 @@
 
 .site-wrapper.fullscreen > .site-container > .site-content {
     flex-grow: 1;
+    position: relative;
 }
