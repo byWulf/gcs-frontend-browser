@@ -37,8 +37,6 @@ export class MatchComponent implements OnInit, OnDestroy {
     MatchState = MatchState;
     TinyColor = TinyColor;
 
-    elements: Element[] = [];
-
     visualization:Visualization;
 
     constructor(
@@ -62,16 +60,6 @@ export class MatchComponent implements OnInit, OnDestroy {
 
         this.userSub = this.userService.userSubject.subscribe(user => {
             this.user = user;
-
-            if (this.match) {
-                this.matchService.openMatch(this.match.id).then(data => {
-                    if (data instanceof EventCallbackError) {
-                        console.error('Error while opening match: ', data);
-                    } else {
-                        this.match = data;
-                    }
-                });
-            }
         });
 
         this.updateSub = this.communicationService.listen('match.update').subscribe(data => {
