@@ -40,10 +40,74 @@ export class MatchVisualizationService {
     private addCamera(visualization:Visualization): void {
         visualization.camera = new PerspectiveCamera(75, visualization.sceneContainer.offsetWidth / visualization.sceneContainer.offsetHeight, 0.1, 10000);
         visualization.camera.name = 'camera';
-        visualization.camera.position.z = 22.5;
-        visualization.camera.position.y = 160;
-        visualization.camera.rotation.x = -45 * Math.PI / 180;
-        visualization.scene.add(visualization.camera);
+        visualization.camera.position.z = 30;
+
+        visualization.cameraRotationContainer = new Group();
+        visualization.cameraRotationContainer.name = 'cameraRotationContainer';
+        visualization.cameraRotationContainer.rotation.x = -45 * Math.PI / 180;
+
+        visualization.cameraPositionContainer = new Group();
+        visualization.cameraPositionContainer.name = 'cameraPositionContainer';
+        visualization.cameraPositionContainer.position.x = 0;
+        visualization.cameraPositionContainer.position.z = 0;
+        visualization.cameraPositionContainer.position.y = 130;
+
+        visualization.cameraRotationContainer.add(visualization.camera);
+        visualization.cameraPositionContainer.add(visualization.cameraRotationContainer);
+        visualization.scene.add(visualization.cameraPositionContainer);
+
+        visualization.mousedownListener = (event:MouseEvent) => {
+            if (event.button == 0 || event.button == 2) {
+                visualization.sceneContainer.requestPointerLock();
+            }
+        };
+
+        visualization.mouseupListener = (event:MouseEvent) => {
+            if (event.button == 0 || event.button == 2) {
+                visualization.sceneContainer.ownerDocument.exitPointerLock();
+            }
+        };
+
+        visualization.mousemoveListener = (event:MouseEvent) => {
+            if (visualization.buttonLocked) {
+                if (event.button == 0) {
+                    visualization.cameraPositionContainer.position.x = Math.max(Math.min(visualization.cameraPositionContainer.position.x + event.movementX * -0.1, 100), -100);
+                    visualization.cameraPositionContainer.position.z = Math.max(Math.min(visualization.cameraPositionContainer.position.z + event.movementY * -0.1, 100), -100);
+                }
+
+                if (event.button == 2) {
+                    visualization.cameraRotationContainer.rotation.x = Math.max(Math.min((visualization.cameraRotationContainer.rotation.x / Math.PI * 180) + event.movementY * -0.3, -5), -90) * Math.PI / 180
+                }
+            }
+        };
+
+        visualization.pointerlockchangeListener = (event:Event) => {
+            visualization.buttonLocked = document.pointerLockElement === visualization.sceneContainer;
+        };
+
+        visualization.mousewheelListener = (event:WheelEvent) => {
+	        let delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+
+	        visualization.camera.position.z = Math.max(Math.min(visualization.camera.position.z + delta * -1, 100), 5);
+        };
+
+        visualization.sceneContainer.addEventListener('mousewheel', visualization.mousewheelListener, false);
+        visualization.sceneContainer.addEventListener('DOMMouseScroll', visualization.mousewheelListener, false);
+        visualization.sceneContainer.addEventListener('mousedown', visualization.mousedownListener, false);
+        visualization.sceneContainer.addEventListener('mouseup', visualization.mouseupListener, false);
+        visualization.sceneContainer.addEventListener('mousemove', visualization.mousemoveListener, false);
+        visualization.sceneContainer.ownerDocument.addEventListener('pointerlockchange', visualization.pointerlockchangeListener, false);
+    }
+
+    private removeCamera(visualization:Visualization): void {
+        visualization.sceneContainer.ownerDocument.exitPointerLock();
+
+        visualization.sceneContainer.removeEventListener('mousewheel', visualization.mousewheelListener, false);
+        visualization.sceneContainer.removeEventListener('DOMMouseScroll', visualization.mousewheelListener, false);
+        visualization.sceneContainer.removeEventListener('mousedown', visualization.mousedownListener, false);
+        visualization.sceneContainer.removeEventListener('mouseup', visualization.mouseupListener, false);
+        visualization.sceneContainer.removeEventListener('mousemove', visualization.mousemoveListener, false);
+        visualization.sceneContainer.ownerDocument.removeEventListener('pointerlockchange', visualization.pointerlockchangeListener, false);
     }
 
     private addRenderer(visualization:Visualization): void {
@@ -156,6 +220,7 @@ export class MatchVisualizationService {
     destroyWorld(visualization:Visualization): void {
         this.removeAnimationFrameListener(visualization);
         this.removeResizeListener(visualization);
+        this.removeCamera(visualization);
         this.removeRenderer(visualization);
         this.removeAnimations();
     }
