@@ -225,7 +225,7 @@ export class MatchVisualizationService {
 
         element.parent = this.createParentFromData(parentData);
 
-        element.element = new ElementTypes[element.type](elementData);
+        element.element = new ElementTypes[element.type](elementData, visualization.match);
 
         visualization.elements.push(element);
 

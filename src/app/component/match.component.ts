@@ -56,7 +56,7 @@ export class MatchComponent implements OnInit, OnDestroy {
                     console.error('Error while opening match: ', data);
                     this.match = null;
                 } else {
-                    this.match = data;
+                    this.match = this.visualization.match = data;
 
                     this.visualization.ready.subscribe(ready => {
                         if (ready) {
