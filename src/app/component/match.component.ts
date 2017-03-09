@@ -48,6 +48,8 @@ export class MatchComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit(): void {
+        this.visualization = new Visualization();
+
         this.route.params.switchMap((params: Params) => this.matchService.openMatch(params['id']))
             .subscribe(data => {
                 if (data instanceof EventCallbackError) {
@@ -55,6 +57,28 @@ export class MatchComponent implements OnInit, OnDestroy {
                     this.match = null;
                 } else {
                     this.match = data;
+
+                    this.visualization.ready.subscribe(ready => {
+                        if (ready) {
+                            for (let element of this.match.elements) {
+                                this.matchVisualizationService.addElement(
+                                    this.visualization,
+                                    element.id,
+                                    element.type,
+                                    element.parent,
+                                    element.element
+                                );
+                            }
+
+                            for (let element of this.match.elements) {
+                                this.matchVisualizationService.moveElement(
+                                    this.visualization,
+                                    element.id,
+                                    element.parent,
+                                );
+                            }
+                        }
+                    });
                 }
             });
 
@@ -67,21 +91,19 @@ export class MatchComponent implements OnInit, OnDestroy {
 
             if (data.key === 'slots') {
                 this.match.slots = data.data;
-            }
-
-            if (data.key == 'state') {
+            } else if (data.key == 'state') {
                 this.match.state = data.data
-            }
-
-            if (data.key == 'event') {
+            } else if (data.key == 'event') {
                 this.handleGameEvent(data.data);
+            } else {
+                console.log("unknown 'match.update' event: " + data.key, data.data);
             }
         });
 
     }
 
     ngAfterViewInit(): void {
-        this.visualization = this.matchVisualizationService.createWorld(this.sceneContainerRef.nativeElement);
+        this.matchVisualizationService.createWorld(this.visualization, this.sceneContainerRef.nativeElement);
     }
 
     ngOnDestroy(): void {

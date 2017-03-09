@@ -137,8 +137,7 @@ export class MatchVisualizationService {
         cancelAnimationFrame(visualization.animationFrameId);
     }
     
-    createWorld(sceneContainer:HTMLElement): Visualization {
-        let visualization = new Visualization();
+    createWorld(visualization:Visualization, sceneContainer:HTMLElement): void {
         visualization.sceneContainer = sceneContainer;
 
         this.addScene(visualization);
@@ -150,7 +149,7 @@ export class MatchVisualizationService {
         this.addResizeListener(visualization);
         this.addAnimationFrameListener(visualization);
 
-        return visualization;
+        visualization.ready.next(true);
     }
     
     destroyWorld(visualization:Visualization): void {
@@ -187,7 +186,6 @@ export class MatchVisualizationService {
                 elementObject.position.z = diff.z;
             }).easing(TWEEN.Easing.Quintic.Out);
 
-        console.log("animateParentChange", elementObject, newParent);
         newParent.add(elementObject);
         elementObject.position.x = diff.x;
         elementObject.position.y = diff.y;

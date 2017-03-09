@@ -1,8 +1,11 @@
 import { Scene, PerspectiveCamera, WebGLRenderer, Group, } from 'three';
+import { BehaviorSubject } from "rxjs/BehaviorSubject";
 
 import { Element } from './element';
 
 export class Visualization {
+    ready:BehaviorSubject<boolean> = new BehaviorSubject(false);
+
     resizeListener:Function;
     animationFrameId:number;
 

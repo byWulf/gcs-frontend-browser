@@ -40,7 +40,6 @@ export class UserService {
         }*/
 
         this.communicationService.listen('user.ownDetails').subscribe(data => {
-            console.log("got owndetails", data)
             this.user = data;
             this.userSubject.next(this.user);
         });
