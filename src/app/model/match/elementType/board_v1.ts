@@ -19,18 +19,18 @@ export class board_v1 implements ElementTypeInterface {
         this.object = new Group();
         this.object.name = 'board_v1';
 
-        let geometry = new BoxGeometry(this.width, 0.002, this.height);
+        let geometry = new BoxGeometry(this.width, 0.2, this.height);
         ImageUtils.crossOrigin = 'anonymous';
         let material = new MeshPhongMaterial({shininess: 0, map: ImageUtils.loadTexture(PathService.getAbsoluteGameElementPath(match.game.key, this.image))});
         let mesh = new Mesh(geometry, material);
-        mesh.position.y = 0.001;
+        mesh.position.y = 0.1;
         mesh.castShadow = true;
         mesh.receiveShadow = true;
         this.object.add(mesh);
 
         this.targetElement = new Group();
         this.targetElement.name = 'board_v1_target';
-        this.targetElement.position.y = 0.002;
+        this.targetElement.position.y = 0.2;
         this.object.add(this.targetElement);
     }
 

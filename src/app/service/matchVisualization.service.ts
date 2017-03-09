@@ -37,10 +37,10 @@ export class MatchVisualizationService {
     }
 
     private addCamera(visualization:Visualization): void {
-        visualization.camera = new PerspectiveCamera(75, visualization.sceneContainer.offsetWidth / visualization.sceneContainer.offsetHeight, 0.001, 100);
+        visualization.camera = new PerspectiveCamera(75, visualization.sceneContainer.offsetWidth / visualization.sceneContainer.offsetHeight, 0.1, 10000);
         visualization.camera.name = 'camera';
-        visualization.camera.position.z = 0.225;
-        visualization.camera.position.y = 1.6;
+        visualization.camera.position.z = 22.5;
+        visualization.camera.position.y = 160;
         visualization.camera.rotation.x = -45 * Math.PI / 180;
         visualization.scene.add(visualization.camera);
     }
@@ -67,23 +67,23 @@ export class MatchVisualizationService {
 
         let directionalLight = new DirectionalLight('#ffffff', 0.5);
         directionalLight.name = 'directionalLight';
-        directionalLight.position.x = -10;
-        directionalLight.position.y = 10;
-        directionalLight.position.z = 10;
+        directionalLight.position.x = -1000;
+        directionalLight.position.y = 1000;
+        directionalLight.position.z = 1000;
         scene.add(directionalLight);
 
         let pointLight = new PointLight('#ffffff', 0.8);
         pointLight.name = 'pointLight';
-        pointLight.position.y = 2.8;
+        pointLight.position.y = 280;
         scene.add(pointLight);
     }
 
     private addTable(visualization:Visualization): void {
         let tableGroup = new Group();
         tableGroup.name = 'tableGroup';
-        tableGroup.position.y = 1.3;
+        tableGroup.position.y = 130;
 
-        let planeGeometry = new PlaneGeometry(20, 20, 1);
+        let planeGeometry = new PlaneGeometry(2000, 2000, 1);
         let planeMaterial = new MeshPhongMaterial({color: '#CCB586', shininess: 0});
         let plane = new Mesh(planeGeometry, planeMaterial);
         plane.name = 'plane';
@@ -93,7 +93,7 @@ export class MatchVisualizationService {
 
         visualization.packageContainer = new Group();
         visualization.packageContainer.name = 'packageContainer';
-        visualization.packageContainer.position.y = 2;
+        visualization.packageContainer.position.y = 200;
         tableGroup.add(visualization.packageContainer);
 
         visualization.centerContainer = new Group();

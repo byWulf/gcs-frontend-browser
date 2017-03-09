@@ -5,18 +5,12 @@ import { PathService } from '../../../service/path.service';
 import {Match} from "../../match";
 
 export class piece_v1 implements ElementTypeInterface {
-    width: number;
-    height: number;
-    depth: number;
     model: string;
     color: string;
 
     object: Group;
 
     constructor(private data: any, private match:Match) {
-        this.width = data.width;
-        this.height = data.height;
-        this.depth = data.depth;
         this.model = data.model;
         this.color = data.color;
 
