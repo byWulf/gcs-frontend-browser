@@ -22,6 +22,7 @@ import {Visualization} from "../model/match/visualization";
 import {Element} from "../model/match/element";
 import {Parent} from "../model/match/parent";
 import * as ElementTypes from "../model/match/elementTypes";
+import {ElementTypeInterface} from "../model/match/elementType/elementTypeInterface";
 
 @Injectable()
 export class MatchVisualizationService {
@@ -225,7 +226,8 @@ export class MatchVisualizationService {
 
         element.parent = this.createParentFromData(parentData);
 
-        element.element = new ElementTypes[element.type](elementData, visualization.match);
+        element.element = new ElementTypes[element.type](elementData, visualization.match, visualization.scene);
+        element.element.object.userData.element = element;
 
         visualization.elements.push(element);
 
@@ -236,16 +238,31 @@ export class MatchVisualizationService {
 
     moveElement(visualization: Visualization, elementId: string, parentData: any): void {
         let element:Element = visualization.elements.find(element => element.id == elementId);
-        element.parent = this.createParentFromData(parentData);
 
+        let parentElement = visualization.elements.find(parentElement => parentElement.id == element.parent.id);
+        let directParentObject:Group = element.element.object.parent;
+
+        element.parent = this.createParentFromData(parentData);
         this.moveElementToParent(element.element.object, this.findParentObject(visualization, element.parent));
+
+        if (parentElement && typeof parentElement.element.onChildRemoved == 'function') {
+            parentElement.element.onChildRemoved(directParentObject);
+        }
     }
 
     removeElement(visualization: Visualization, elementId: string): void {
         let index = visualization.elements.findIndex(element => element.id == elementId);
         if (index > -1) {
+
+            let parentElement = visualization.elements.find(parentElement => parentElement.id == visualization.elements[index].parent.id);
+            let directParentObject:Group = visualization.elements[index].element.object.parent;
+
             visualization.scene.remove(visualization.elements[index].element.object);
             visualization.elements.splice(index, 1);
+
+            if (parentElement && typeof parentElement.element.onChildRemoved == 'function') {
+                parentElement.element.onChildRemoved(directParentObject);
+            }
         }
     }
 }

@@ -8,5 +8,12 @@ export interface ElementTypeInterface {
      *
      * @param data provided data to determine, into which element of this element another element should be placed
      */
-    getTargetObject(data:any): Group;
+    getTargetObject?(data:any): Group;
+
+    /**
+     * Gets called when a child is removed from this element.
+     *
+     * @param fromParent
+     */
+    onChildRemoved?(fromParent:Group): void;
 }
