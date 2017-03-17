@@ -2,7 +2,7 @@ import { ElementTypeInterface } from './elementTypeInterface';
 import { Group, MeshPhongMaterial, Object3D } from 'three';
 import {OBJLoader} from "../../../service/three/objLoader.service";
 import { PathService } from '../../../service/path.service';
-import {Match} from "../../match";
+import { Visualization } from "../visualization";
 
 export class piece_v1 implements ElementTypeInterface {
     model: string;
@@ -10,7 +10,7 @@ export class piece_v1 implements ElementTypeInterface {
 
     object: Group;
 
-    constructor(private data: any, private match:Match) {
+    constructor(private data: any, private visualization:Visualization) {
         this.model = data.model;
         this.color = data.color;
 
@@ -19,7 +19,7 @@ export class piece_v1 implements ElementTypeInterface {
 
         let material = new MeshPhongMaterial({color: this.color, shininess: 0});
         let loader = new OBJLoader();
-        loader.load(PathService.getAbsoluteGameElementPath(match.game.key, this.model), material, (object:Object3D) => {
+        loader.load(PathService.getAbsoluteGameElementPath(visualization.match.game.key, this.model), material, (object:Object3D) => {
             object.castShadow = true;
             object.receiveShadow = true;
             this.object.add(object);

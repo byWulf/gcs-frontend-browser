@@ -1,20 +1,26 @@
 import { ElementTypeInterface } from './elementTypeInterface';
-import { Group, BoxGeometry, MeshPhongMaterial, Mesh } from 'three';
+import { Group, BoxGeometry, MeshPhongMaterial, Mesh, Vector3 } from 'three';
+import { DiceObject, DiceD6, DiceManager } from 'threejs-dice';
+import { Visualization } from "../visualization";
 
 export class dice_v1 implements ElementTypeInterface {
     object: Group;
+    dice: DiceObject;
 
-    constructor(private data: any) {
+    constructor(private data: any, private visualization:Visualization) {
         this.object = new Group();
         this.object.name = 'dice_v1';
 
-        let geometry = new BoxGeometry(1.5, 1.5, 1.5);
-        let material = new MeshPhongMaterial({color: '#cccccc', shininess: 0});
-        let mesh = new Mesh(geometry, material);
-        mesh.position.y = 0.75;
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        this.object.add(mesh);
+        if (!DiceManager.world) {
+            DiceManager.setWorld(visualization.world);
+        }
+
+        this.dice = new DiceD6({size: 1.5});
+        this.dice.getObject().body.material = visualization.elementBodyMaterial;
+        this.dice.getObject().position.y = 0.75;
+        this.dice.updateBodyFromMesh();
+
+        this.object.add(this.dice.getObject());
     }
 
     /**
@@ -22,5 +28,28 @@ export class dice_v1 implements ElementTypeInterface {
      */
     getTargetObject(data:any): Group {
         return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    onRendered(): void {
+        this.dice.updateMeshFromBody();
+    }
+
+    onEvent(event:string, data:any): void {
+        if (event == 'dice.rolled') {
+            this.dice.getObject().body.position.x = 0;
+            this.dice.getObject().body.position.z = 0;
+            this.dice.getObject().body.velocity.y = 70;
+            let factor = 100;
+            this.dice.getObject().body.angularVelocity.set(factor * Math.random() - factor/2, factor * Math.random() - factor / 2, factor * Math.random() - factor/2);
+
+            DiceManager.prepareValues([{
+                dice: this.dice,
+                value: data.value
+            }]);
+            console.log("dice throwed: ", data.value);
+        }
     }
 }

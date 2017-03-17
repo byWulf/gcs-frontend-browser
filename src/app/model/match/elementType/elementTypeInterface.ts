@@ -16,4 +16,11 @@ export interface ElementTypeInterface {
      * @param fromParent
      */
     onChildRemoved?(fromParent:Group): void;
+
+    /**
+     * Gets called when the world is rendered. Gets called each frame.
+     */
+    onRendered?(): void;
+
+    onEvent?(event: string, data: any): void;
 }

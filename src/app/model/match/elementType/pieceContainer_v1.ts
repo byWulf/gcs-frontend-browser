@@ -1,7 +1,7 @@
 import { ElementTypeInterface } from './elementTypeInterface';
-import { Group, Scene, Vector3 } from 'three';
-import {Match} from "../../match";
+import { Group, Vector3 } from 'three';
 import * as TWEEN from 'tween.js';
+import { Visualization } from "../visualization";
 
 class Position {
     index:number;
@@ -26,7 +26,7 @@ export class pieceContainer_v1 implements ElementTypeInterface {
 
     object: Group;
 
-    constructor(private data: any, private match:Match, private scene:Scene) {
+    constructor(private data: any, private visualization:Visualization) {
         this.object = new Group();
         this.object.name = 'pieceContainer_v1';
 
@@ -123,11 +123,10 @@ export class pieceContainer_v1 implements ElementTypeInterface {
     }
 
     onChildRemoved(fromParent:Group): void {
-        //TODO: Remove indexContainer and rearrange remaining indexContainers
         for (let i = 0; i < this.positions.length; i++) {
             for (let j = 0; j < this.positions[i].places.length; j++) {
                 if (this.positions[i].places[j].children.length == 0) {
-                    this.scene.remove(this.positions[i].places[j]);
+                    this.visualization.scene.remove(this.positions[i].places[j]);
                     this.positions[i].places.splice(j, 1);
 
                     this.rearrangePlaces(this.positions[i]);

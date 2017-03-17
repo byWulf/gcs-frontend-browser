@@ -13,6 +13,15 @@ import {
     Vector3,
     WebGLRenderer
 } from "three";
+
+import {
+    World,
+    NaiveBroadphase,
+    Material,
+    Body,
+    Plane
+} from 'cannon';
+
 import * as THREE from 'three';
 import * as TWEEN from 'tween.js';
 
@@ -22,7 +31,6 @@ import {Visualization} from "../model/match/visualization";
 import {Element} from "../model/match/element";
 import {Parent} from "../model/match/parent";
 import * as ElementTypes from "../model/match/elementTypes";
-import {ElementTypeInterface} from "../model/match/elementType/elementTypeInterface";
 
 @Injectable()
 export class MatchVisualizationService {
@@ -35,6 +43,26 @@ export class MatchVisualizationService {
         visualization.scene.name = 'scene';
         this.windowRef.nativeWindow.scene = visualization.scene;
         this.windowRef.nativeWindow.THREE = THREE;
+    }
+
+    private addWorld(visualization:Visualization): void {
+        visualization.world = new World();
+
+        visualization.world.gravity.y = -9.82 * 20;
+        visualization.world.broadphase = new NaiveBroadphase();
+        visualization.world.solver.iterations = 16;
+
+        visualization.elementBodyMaterial = new Material('elementBodyMaterial');
+        visualization.environmentBodyMaterial = new Material('environmentBodyMaterial');
+
+        visualization.world.addContactMaterial(
+            new CANNON.ContactMaterial(visualization.environmentBodyMaterial,   visualization.elementBodyMaterial, {friction: 0.01, restitution: 0.5})
+        );
+        visualization.world.addContactMaterial(
+            new CANNON.ContactMaterial(visualization.elementBodyMaterial,    visualization.elementBodyMaterial, {friction: 0, restitution: 0.5})
+        );
+
+        this.windowRef.nativeWindow.world = visualization.world;
     }
 
     private addCamera(visualization:Visualization): void {
@@ -156,6 +184,12 @@ export class MatchVisualizationService {
         plane.receiveShadow = true;
         tableGroup.add(plane);
 
+        let planeBody = new Body({mass: 0});
+        planeBody.addShape(new Plane());
+        planeBody.material = visualization.environmentBodyMaterial;
+        planeBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+        visualization.world.add(planeBody);
+
         visualization.packageContainer = new Group();
         visualization.packageContainer.name = 'packageContainer';
         visualization.packageContainer.position.y = 200;
@@ -192,6 +226,14 @@ export class MatchVisualizationService {
             visualization.renderer.render(visualization.scene, visualization.camera);
             TWEEN.update(time);
 
+            visualization.world.step(1.0 / 60.0);
+
+            for (let element of visualization.elements) {
+                if (typeof element.element.onRendered === 'function') {
+                    element.element.onRendered();
+                }
+            }
+
             requestAnimationFrame(render);
         };
 
@@ -206,6 +248,7 @@ export class MatchVisualizationService {
         visualization.sceneContainer = sceneContainer;
 
         this.addScene(visualization);
+        this.addWorld(visualization);
         this.addCamera(visualization);
         this.addRenderer(visualization);
         this.addLighting(visualization.scene);
@@ -278,8 +321,11 @@ export class MatchVisualizationService {
 
     private createParentFromData(parentData: any): Parent {
         let parent = new Parent();
-        parent.id = parentData.id;
-        parent.data = parentData.data;
+
+        if (parentData) {
+            parent.id = parentData.id;
+            parent.data = parentData.data;
+        }
 
         return parent;
     }
@@ -291,7 +337,7 @@ export class MatchVisualizationService {
 
         element.parent = this.createParentFromData(parentData);
 
-        element.element = new ElementTypes[element.type](elementData, visualization.match, visualization.scene);
+        element.element = new ElementTypes[element.type](elementData, visualization);
         element.element.object.userData.element = element;
 
         visualization.elements.push(element);
@@ -328,6 +374,25 @@ export class MatchVisualizationService {
             if (parentElement && typeof parentElement.element.onChildRemoved == 'function') {
                 parentElement.element.onChildRemoved(directParentObject);
             }
+        }
+    }
+
+    handleGameEvent(visualization:Visualization, data: any): void {
+        if (data.event == 'element.added') {
+            this.addElement(visualization, data.id, data.type, data.parent, data.element);
+        }
+
+        if (data.event == 'element.moved') {
+            this.moveElement(visualization, data.id, data.parent);
+        }
+
+        if (data.event == 'element.removed') {
+            this.removeElement(visualization, data.id);
+        }
+
+        let element:Element = visualization.elements.find(element => element.id == data.id);
+        if (element && typeof element.element.onEvent === 'function') {
+            element.element.onEvent(data.event, data);
         }
     }
 }

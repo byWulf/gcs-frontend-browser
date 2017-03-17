@@ -30,7 +30,9 @@
             'angular2-cookie': 'npm:angular2-cookie',
             'tinycolor2': 'npm:tinycolor2',
             'three': 'npm:three',
-            'tween.js': 'npm:tween.js'
+            'cannon': 'npm:cannon/build/cannon.js',
+            'tween.js': 'npm:tween.js',
+            'threejs-dice': 'npm:threejs-dice'
         },
         // packages tells the System loader how to load when no filename and/or no extension
         packages: {
@@ -54,9 +56,22 @@
                 main: './build/three.js',
                 defaultExtension: 'js'
             },
+            'cannon': {
+                defaultExtension: 'js',
+                format: 'esm'
+            },
             'tween.js': {
                 main: './src/Tween.js',
                 defaultExtension: 'js'
+            },
+            'threejs-dice': {
+                main: './lib/dice.js',
+                defaultExtension: 'js'
+            }
+        },
+        "meta": {
+            'cannon': {
+                format: 'global'
             }
         }
     });

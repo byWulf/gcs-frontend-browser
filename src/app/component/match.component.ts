@@ -94,7 +94,7 @@ export class MatchComponent implements OnInit, OnDestroy {
             } else if (data.key == 'state') {
                 this.match.state = data.data
             } else if (data.key == 'event') {
-                this.handleGameEvent(data.data);
+                this.matchVisualizationService.handleGameEvent(this.visualization, data.data);
             } else {
                 console.log("unknown 'match.update' event: " + data.key, data.data);
             }
@@ -179,21 +179,5 @@ export class MatchComponent implements OnInit, OnDestroy {
 
     lightenColor(color: string): string {
         return TinyColor(color).brighten(80).desaturate(20).toString();
-    }
-
-    private handleGameEvent(data: any): void {
-        //console.log("got event from game", data);
-
-        if (data.event == 'element.added') {
-            this.matchVisualizationService.addElement(this.visualization, data.id, data.type, data.parent, data.element);
-        }
-
-        if (data.event == 'element.moved') {
-            this.matchVisualizationService.moveElement(this.visualization, data.id, data.parent);
-        }
-
-        if (data.event == 'element.removed') {
-            this.matchVisualizationService.removeElement(this.visualization, data.id);
-        }
     }
 }
