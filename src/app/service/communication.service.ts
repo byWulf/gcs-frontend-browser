@@ -8,7 +8,7 @@ import {EventCallbackError} from "../model/eventCallbackError";
 
 @Injectable()
 export class CommunicationService {
-    private url = 'http://localhost:3700';
+    private url = document.location.protocol + '//' + document.location.hostname +  ':3700';
     private socket: any = io(this.url);
 
     private messageId: number = 0;
