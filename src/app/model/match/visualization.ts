@@ -1,19 +1,27 @@
-import { Scene, PerspectiveCamera, WebGLRenderer, Group, } from 'three';
+import { Scene, PerspectiveCamera, WebGLRenderer, Group, Raycaster, Vector2 } from 'three';
 import { World, Material } from 'cannon';
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 
 import { Element } from './element';
 import { Match } from '../match';
+import {MatchService} from "../../service/match.service";
 
 export class Visualization {
     ready:BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-    mousedownListener:EventListener;
-    mousemoveListener:EventListener;
-    mouseupListener:EventListener;
-    mousewheelListener:EventListener;
-    pointerlockchangeListener:EventListener;
-    buttonLocked:boolean = false;
+    matchService:MatchService;
+
+    cameraMousedownListener:EventListener;
+    cameraMousemoveListener:EventListener;
+    cameraMouseupListener:EventListener;
+    cameraMousewheelListener:EventListener;
+    cameraPointerlockchangeListener:EventListener;
+    cameraButtonLocked:boolean = false;
+
+    interactionMousemoveListener:EventListener;
+    interactionMousedownListener:EventListener;
+    currentSelectedObject:Group = null;
+    currentSelectedElement:Element = null;
 
     resizeListener:EventListener;
     animationFrameId:number;
@@ -24,6 +32,8 @@ export class Visualization {
     camera:PerspectiveCamera;
     cameraRotationContainer:Group;
     cameraPositionContainer:Group;
+    raycaster:Raycaster;
+    mouse:Vector2;
 
     world:World;
     elementBodyMaterial:Material;

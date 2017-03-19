@@ -49,6 +49,7 @@ export class MatchComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.visualization = new Visualization();
+        this.visualization.matchService = this.matchService;
 
         this.route.params.switchMap((params: Params) => this.matchService.openMatch(params['id']))
             .subscribe(data => {

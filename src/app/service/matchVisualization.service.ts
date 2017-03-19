@@ -11,7 +11,9 @@ import {
     PointLight,
     Scene,
     Vector3,
-    WebGLRenderer
+    WebGLRenderer,
+    Vector2,
+    Raycaster
 } from "three";
 
 import {
@@ -84,20 +86,31 @@ export class MatchVisualizationService {
         visualization.cameraPositionContainer.add(visualization.cameraRotationContainer);
         visualization.scene.add(visualization.cameraPositionContainer);
 
-        visualization.mousedownListener = (event:MouseEvent) => {
+        visualization.cameraMousedownListener = (event:MouseEvent) => {
+            if (event.button == 0 && visualization.currentSelectedElement && typeof visualization.currentSelectedElement.element.onMouseDown === 'function') {
+                let result = visualization.currentSelectedElement.element.onMouseDown();
+
+                if (result === false) return;
+            }
+
+
             if (event.button == 0 || event.button == 2) {
                 visualization.sceneContainer.requestPointerLock();
             }
         };
 
-        visualization.mouseupListener = (event:MouseEvent) => {
+        visualization.cameraMouseupListener = (event:MouseEvent) => {
+            if (event.button == 0 && visualization.currentSelectedElement && typeof visualization.currentSelectedElement.element.onMouseUp === 'function') {
+                visualization.currentSelectedElement.element.onMouseUp();
+            }
+
             if (event.button == 0 || event.button == 2) {
                 visualization.sceneContainer.ownerDocument.exitPointerLock();
             }
         };
 
-        visualization.mousemoveListener = (event:MouseEvent) => {
-            if (visualization.buttonLocked) {
+        visualization.cameraMousemoveListener = (event:MouseEvent) => {
+            if (visualization.cameraButtonLocked) {
                 if (event.button == 0) {
                     visualization.cameraPositionContainer.position.x = Math.max(Math.min(visualization.cameraPositionContainer.position.x + event.movementX * -0.1, 100), -100);
                     visualization.cameraPositionContainer.position.z = Math.max(Math.min(visualization.cameraPositionContainer.position.z + event.movementY * -0.1, 100), -100);
@@ -109,33 +122,110 @@ export class MatchVisualizationService {
             }
         };
 
-        visualization.pointerlockchangeListener = (event:Event) => {
-            visualization.buttonLocked = document.pointerLockElement === visualization.sceneContainer;
+        visualization.cameraPointerlockchangeListener = (event:Event) => {
+            visualization.cameraButtonLocked = document.pointerLockElement === visualization.sceneContainer;
         };
 
-        visualization.mousewheelListener = (event:WheelEvent) => {
+        visualization.cameraMousewheelListener = (event:WheelEvent) => {
 	        let delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
 
 	        visualization.camera.position.z = Math.max(Math.min(visualization.camera.position.z + delta * -1, 100), 5);
         };
 
-        visualization.sceneContainer.addEventListener('mousewheel', visualization.mousewheelListener, false);
-        visualization.sceneContainer.addEventListener('DOMMouseScroll', visualization.mousewheelListener, false);
-        visualization.sceneContainer.addEventListener('mousedown', visualization.mousedownListener, false);
-        visualization.sceneContainer.addEventListener('mouseup', visualization.mouseupListener, false);
-        visualization.sceneContainer.addEventListener('mousemove', visualization.mousemoveListener, false);
-        visualization.sceneContainer.ownerDocument.addEventListener('pointerlockchange', visualization.pointerlockchangeListener, false);
+        visualization.sceneContainer.addEventListener('mousewheel', visualization.cameraMousewheelListener, false);
+        visualization.sceneContainer.addEventListener('DOMMouseScroll', visualization.cameraMousewheelListener, false);
+        visualization.sceneContainer.addEventListener('mousedown', visualization.cameraMousedownListener, false);
+        visualization.sceneContainer.addEventListener('mouseup', visualization.cameraMouseupListener, false);
+        visualization.sceneContainer.addEventListener('mousemove', visualization.cameraMousemoveListener, false);
+        visualization.sceneContainer.ownerDocument.addEventListener('pointerlockchange', visualization.cameraPointerlockchangeListener, false);
     }
 
     private removeCamera(visualization:Visualization): void {
         visualization.sceneContainer.ownerDocument.exitPointerLock();
 
-        visualization.sceneContainer.removeEventListener('mousewheel', visualization.mousewheelListener, false);
-        visualization.sceneContainer.removeEventListener('DOMMouseScroll', visualization.mousewheelListener, false);
-        visualization.sceneContainer.removeEventListener('mousedown', visualization.mousedownListener, false);
-        visualization.sceneContainer.removeEventListener('mouseup', visualization.mouseupListener, false);
-        visualization.sceneContainer.removeEventListener('mousemove', visualization.mousemoveListener, false);
-        visualization.sceneContainer.ownerDocument.removeEventListener('pointerlockchange', visualization.pointerlockchangeListener, false);
+        visualization.sceneContainer.removeEventListener('mousewheel', visualization.cameraMousewheelListener, false);
+        visualization.sceneContainer.removeEventListener('DOMMouseScroll', visualization.cameraMousewheelListener, false);
+        visualization.sceneContainer.removeEventListener('mousedown', visualization.cameraMousedownListener, false);
+        visualization.sceneContainer.removeEventListener('mouseup', visualization.cameraMouseupListener, false);
+        visualization.sceneContainer.removeEventListener('mousemove', visualization.cameraMousemoveListener, false);
+        visualization.sceneContainer.ownerDocument.removeEventListener('pointerlockchange', visualization.cameraPointerlockchangeListener, false);
+    }
+
+    private getElementByObject(elements:Element[], object:Group):Element {
+        for (let element of elements) {
+            if (element.element.object === object) {
+                return element;
+            } else if (object.parent) {
+                let parent = this.getElementByObject(elements, object.parent);
+                if (parent !== null) return parent;
+            }
+        }
+
+        return null;
+    }
+
+    private addInteraction(visualization:Visualization): void {
+        visualization.raycaster = new Raycaster();
+        visualization.mouse = new Vector2();
+
+        visualization.interactionMousemoveListener = (event:MouseEvent) => {
+            visualization.mouse.x = (event.offsetX / visualization.sceneContainer.offsetWidth) * 2 - 1;
+            visualization.mouse.y = - (event.offsetY / visualization.sceneContainer.offsetHeight) * 2 + 1;
+
+            visualization.raycaster.setFromCamera(visualization.mouse, visualization.camera);
+
+            let objects:Group[] = [];
+            for (let element of visualization.elements) {
+                objects.push(element.element.object);
+            }
+
+            let intersects = visualization.raycaster.intersectObjects(objects, true);
+
+            if (intersects.length > 0) {
+                //MouseMove if hovered object hasn't changed
+                if (intersects[0].object == visualization.currentSelectedObject) {
+                    if (visualization.currentSelectedElement && typeof visualization.currentSelectedElement.element.onMouseMove === 'function') {
+                        visualization.currentSelectedElement.element.onMouseMove(intersects[0].point);
+                    }
+
+                    return;
+                }
+
+                //MouseLeave because hovered object has changed (only when previous object was hovered)
+                if (visualization.currentSelectedObject !== null) {
+                    if (visualization.currentSelectedElement && typeof visualization.currentSelectedElement.element.onMouseLeave === 'function') {
+                        visualization.currentSelectedElement.element.onMouseLeave(intersects[0].point);
+                    }
+                }
+
+                //MouseEnter on new hovered element
+                let element = this.getElementByObject(visualization.elements, intersects[0].object);
+                if (element) {
+                    visualization.currentSelectedObject = intersects[0].object;
+                    visualization.currentSelectedElement = element;
+
+                    if (typeof element.element.onMouseEnter === 'function') {
+                        element.element.onMouseEnter(intersects[0].point);
+                    }
+                }
+            } else {
+                //MouseLeave
+                if (visualization.currentSelectedObject !== null) {
+                    let element = this.getElementByObject(visualization.elements, visualization.currentSelectedObject);
+                    if (element && typeof element.element.onMouseLeave === 'function') {
+                        element.element.onMouseLeave(intersects[0].point);
+                    }
+                }
+
+                visualization.currentSelectedObject = null;
+                visualization.currentSelectedElement = null;
+            }
+        }
+        visualization.sceneContainer.addEventListener('mousemove', visualization.interactionMousemoveListener, false);
+    }
+
+    private removeInteraction(visualization:Visualization): void {
+        visualization.sceneContainer.removeEventListener('mousemove', visualization.interactionMousemoveListener, false);
     }
 
     private addRenderer(visualization:Visualization): void {
@@ -188,7 +278,7 @@ export class MatchVisualizationService {
         planeBody.addShape(new Plane());
         planeBody.material = visualization.environmentBodyMaterial;
         planeBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
-        visualization.world.add(planeBody);
+        visualization.world.addBody(planeBody);
 
         visualization.packageContainer = new Group();
         visualization.packageContainer.name = 'packageContainer';
@@ -209,6 +299,10 @@ export class MatchVisualizationService {
 
             visualization.renderer.setSize(visualization.sceneContainer.offsetWidth, visualization.sceneContainer.offsetHeight);
         };
+
+        setTimeout(() => {
+            this.windowRef.nativeWindow.dispatchEvent(new Event('resize'));
+        }, 50);
 
         this.windowRef.nativeWindow.addEventListener('resize', visualization.resizeListener, false);
     }
@@ -250,6 +344,7 @@ export class MatchVisualizationService {
         this.addScene(visualization);
         this.addWorld(visualization);
         this.addCamera(visualization);
+        this.addInteraction(visualization);
         this.addRenderer(visualization);
         this.addLighting(visualization.scene);
         this.addTable(visualization);
@@ -264,6 +359,7 @@ export class MatchVisualizationService {
         this.removeAnimationFrameListener(visualization);
         this.removeResizeListener(visualization);
         this.removeCamera(visualization);
+        this.removeInteraction(visualization);
         this.removeRenderer(visualization);
         this.removeAnimations();
     }
@@ -337,7 +433,7 @@ export class MatchVisualizationService {
 
         element.parent = this.createParentFromData(parentData);
 
-        element.element = new ElementTypes[element.type](elementData, visualization);
+        element.element = new ElementTypes[element.type](elementData, visualization, element);
         element.element.object.userData.element = element;
 
         visualization.elements.push(element);

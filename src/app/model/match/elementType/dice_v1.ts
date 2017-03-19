@@ -2,12 +2,15 @@ import { ElementTypeInterface } from './elementTypeInterface';
 import { Group, BoxGeometry, MeshPhongMaterial, Mesh, Vector3 } from 'three';
 import { DiceObject, DiceD6, DiceManager } from 'threejs-dice';
 import { Visualization } from "../visualization";
+import { Element } from "../element";
+import {EventCallbackError} from "../../eventCallbackError";
 
 export class dice_v1 implements ElementTypeInterface {
     object: Group;
     dice: DiceObject;
+    canBeRolled: false;
 
-    constructor(private data: any, private visualization:Visualization) {
+    constructor(private data: any, private visualization:Visualization, private element:Element) {
         this.object = new Group();
         this.object.name = 'dice_v1';
 
@@ -21,6 +24,13 @@ export class dice_v1 implements ElementTypeInterface {
         this.dice.updateBodyFromMesh();
 
         this.object.add(this.dice.getObject());
+
+        DiceManager.prepareValues([{
+            dice: this.dice,
+            value: data.value
+        }]);
+
+        this.canBeRolled = data.canBeRolled;
     }
 
     /**
@@ -49,7 +59,21 @@ export class dice_v1 implements ElementTypeInterface {
                 dice: this.dice,
                 value: data.value
             }]);
-            console.log("dice throwed: ", data.value);
+        }
+        if (event == 'dice.permissionChanged') {
+            this.canBeRolled = data.canBeRolled;
+        }
+    }
+
+    onMouseDown(): boolean|void {
+        if (this.canBeRolled) {
+            this.visualization.matchService.callMethod(this.visualization.match, this.element, 'dice.roll', {intensity: 1}).then(data => {
+                if (data instanceof EventCallbackError) {
+                    console.error('Error while rolling dice: ', data);
+                }
+            });
+
+            return false;
         }
     }
 }

@@ -1,4 +1,4 @@
-import { Group } from 'three';
+import { Group, Vector3 } from 'three';
 
 export interface ElementTypeInterface {
     object: Group;
@@ -23,4 +23,14 @@ export interface ElementTypeInterface {
     onRendered?(): void;
 
     onEvent?(event: string, data: any): void;
+
+    onMouseEnter?(point: Vector3): void;
+
+    onMouseMove?(point: Vector3): void;
+
+    onMouseLeave?(point: Vector3): void;
+
+    onMouseDown?(): boolean|void;
+
+    onMouseUp?(): void;
 }
