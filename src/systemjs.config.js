@@ -29,8 +29,10 @@
             'socket.io-client': 'npm:socket.io-client',
             'angular2-cookie': 'npm:angular2-cookie',
             'tinycolor2': 'npm:tinycolor2',
+            'gcs-frontend-browser-visualization': 'npm:gcs-frontend-browser-visualization',
+
             'three': 'npm:three',
-            'cannon': 'npm:cannon/build/cannon.js',
+            'cannon': 'npm:cannon',
             'tween.js': 'npm:tween.js',
             'threejs-dice': 'npm:threejs-dice'
         },
@@ -52,25 +54,28 @@
             'tinycolor2': {
                 main: './dist/tinycolor-min.js'
             },
-            'three': {
-                main: './build/three.js',
+            'gcs-frontend-browser-visualization': {
+                main: './index.js',
                 defaultExtension: 'js'
             },
-            'cannon': {
+            three: {
+                main: './build/Three.js',
                 defaultExtension: 'js',
-                format: 'esm'
+                format: 'global'
+            },
+            cannon: {
+                main: './build/Cannon.js',
+                defaultExtension: 'js',
+                format: 'global'
             },
             'tween.js': {
                 main: './src/Tween.js',
-                defaultExtension: 'js'
+                defaultExtension: 'js',
+                format: 'global'
             },
             'threejs-dice': {
                 main: './lib/dice.js',
-                defaultExtension: 'js'
-            }
-        },
-        "meta": {
-            'cannon': {
+                defaultExtension: 'js',
                 format: 'global'
             }
         }

@@ -19,7 +19,6 @@ import {CommunicationService} from "./service/communication.service";
 import {UserService} from "./service/user.service";
 import {CookieService} from "angular2-cookie/services/cookies.service";
 import {WindowRefService} from "./service/windowRef.service";
-import {MatchVisualizationService} from "./service/matchVisualization.service";
 
 
 @NgModule({
@@ -45,8 +44,7 @@ import {MatchVisualizationService} from "./service/matchVisualization.service";
         CommunicationService,
         UserService,
         CookieService,
-        WindowRefService,
-        MatchVisualizationService
+        WindowRefService
     ],
     bootstrap: [LayoutComponent]
 })

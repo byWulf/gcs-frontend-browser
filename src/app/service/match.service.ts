@@ -4,7 +4,6 @@ import { CommunicationService } from './communication.service';
 
 import { Match } from '../model/match';
 import { Game } from '../model/game';
-import { Element } from '../model/match/element';
 import { EventCallbackError } from '../model/eventCallbackError';
 
 @Injectable()
@@ -92,12 +91,12 @@ export class MatchService {
         });
     }
 
-    callMethod(match:Match, element:Element, method:string, data:any): Promise<boolean | EventCallbackError> {
+    callMethod(match:Match, elementId:string, method:string, data:any): Promise<boolean | EventCallbackError> {
         return this.communicationService.sendData({
             action: 'match.method',
             data: {
                 matchId: match.id,
-                elementId: element.id,
+                elementId: elementId,
                 method: method,
                 data: data
             }

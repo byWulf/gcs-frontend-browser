@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import {ActivatedRoute, Params} from '@angular/router';
 
+import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import 'rxjs/add/operator/switchMap';
 import { Subscription } from 'rxjs/Subscription';
 import * as TinyColor from 'tinycolor2';
@@ -8,12 +9,13 @@ import * as TinyColor from 'tinycolor2';
 import {Match, MatchState} from '../model/match';
 import {User} from '../model/user';
 import { EventCallbackError } from '../model/eventCallbackError';
-import { Visualization } from '../model/match/visualization';
 
 import {MatchService} from '../service/match.service';
 import {UserService} from '../service/user.service';
 import {CommunicationService} from '../service/communication.service';
-import {MatchVisualizationService} from '../service/matchVisualization.service';
+import {WindowRefService} from "../service/windowRef.service";
+
+import {Visualization} from 'gcs-frontend-browser-visualization';
 
 declare const $:JQueryStatic;
 
@@ -38,18 +40,18 @@ export class MatchComponent implements OnInit, OnDestroy {
     TinyColor = TinyColor;
 
     visualization:Visualization;
+    visualizationReady:BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     constructor(
         private matchService: MatchService,
         private route: ActivatedRoute,
         private userService: UserService,
         private communicationService: CommunicationService,
-        private matchVisualizationService: MatchVisualizationService
+        private windowRef: WindowRefService
     ) {}
 
     ngOnInit(): void {
-        this.visualization = new Visualization();
-        this.visualization.matchService = this.matchService;
+        this.visualizationReady.next(false);
 
         this.route.params.switchMap((params: Params) => this.matchService.openMatch(params['id']))
             .subscribe(data => {
@@ -57,26 +59,31 @@ export class MatchComponent implements OnInit, OnDestroy {
                     console.error('Error while opening match: ', data);
                     this.match = null;
                 } else {
-                    this.match = this.visualization.match = data;
+                    this.match = data;
 
-                    this.visualization.ready.subscribe(ready => {
+                    if (this.visualization) {
+                        this.visualization.destroy();
+                        this.visualization = null;
+                    }
+
+                    this.visualizationReady.subscribe(ready => {
                         if (ready) {
-                            for (let element of this.match.elements) {
-                                this.matchVisualizationService.addElement(
-                                    this.visualization,
-                                    element.id,
-                                    element.type,
-                                    element.parent,
-                                    element.element
-                                );
+                            this.visualization = new Visualization(this.windowRef.nativeWindow, this.sceneContainerRef.nativeElement, this.match.game.key, (methodName: string, elementId: string, data: any): void => {
+                                this.matchService.callMethod(this.match, elementId, methodName, data).then(data => {
+                                    if (data instanceof EventCallbackError) {
+                                        console.error('Error while calling method "' + methodName + '": ', data);
+                                    }
+                                });
+                            });
+
+                            //First add all elements to the visualization
+                            for (let element of data.elements) {
+                                this.visualization.handleGameEvent('element.added', element);
                             }
 
-                            for (let element of this.match.elements) {
-                                this.matchVisualizationService.moveElement(
-                                    this.visualization,
-                                    element.id,
-                                    element.parent,
-                                );
+                            //Then explicitly move them to the correct parent (it could be, that at adding an element, its parent isn't created yet and so is no valid parent target)
+                            for (let element of data.elements) {
+                                this.visualization.handleGameEvent('element.moved', element);
                             }
                         }
                     });
@@ -95,7 +102,7 @@ export class MatchComponent implements OnInit, OnDestroy {
             } else if (data.key == 'state') {
                 this.match.state = data.data
             } else if (data.key == 'event') {
-                this.matchVisualizationService.handleGameEvent(this.visualization, data.data);
+                this.visualization.handleGameEvent(data.data.event, data.data);
             } else {
                 console.log("unknown 'match.update' event: " + data.key, data.data);
             }
@@ -104,11 +111,12 @@ export class MatchComponent implements OnInit, OnDestroy {
     }
 
     ngAfterViewInit(): void {
-        this.matchVisualizationService.createWorld(this.visualization, this.sceneContainerRef.nativeElement);
+        this.visualizationReady.next(true);
     }
 
     ngOnDestroy(): void {
-        this.matchVisualizationService.destroyWorld(this.visualization);
+        this.visualization.destroy();
+        this.visualization = null;
 
         this.matchService.closeMatch().then(data => {
             if (data instanceof EventCallbackError) {

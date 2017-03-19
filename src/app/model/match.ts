@@ -1,7 +1,6 @@
 import { Game } from './game';
 import { User } from './user';
-import { Slot } from './match/slot';
-import { Element } from './match/element';
+import { Slot } from './slot';
 
 type MatchStateEnum = "open" | "running" | "finished" | "canceled";
 
@@ -11,7 +10,7 @@ export class Match {
     game: Game;
     slots: Slot[];
     masterUser: User;
-    elements: Element[];
+    elements: Object[];
 }
 
 export const MatchState = {
