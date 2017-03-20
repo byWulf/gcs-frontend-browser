@@ -29,7 +29,7 @@
             'socket.io-client': 'npm:socket.io-client',
             'angular2-cookie': 'npm:angular2-cookie',
             'tinycolor2': 'npm:tinycolor2',
-            'gcs-frontend-browser-visualization': 'npm:gcs-frontend-browser-visualization',
+            'gcs-frontend-browser-matchvisualization-3d': 'npm:gcs-frontend-browser-matchvisualization-3d',
 
             'three': 'npm:three',
             'cannon': 'npm:cannon',
@@ -54,7 +54,7 @@
             'tinycolor2': {
                 main: './dist/tinycolor-min.js'
             },
-            'gcs-frontend-browser-visualization': {
+            'gcs-frontend-browser-matchvisualization-3d': {
                 main: './index.js',
                 defaultExtension: 'js'
             },
