@@ -15,7 +15,7 @@ import {UserService} from '../service/user.service';
 import {CommunicationService} from '../service/communication.service';
 import {WindowRefService} from "../service/windowRef.service";
 
-import {Visualization} from 'gcs-frontend-browser-visualization';
+import {Visualization} from 'gcs-frontend-browser-matchvisualization-3d';
 
 declare const $:JQueryStatic;
 
