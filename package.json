@@ -46,6 +46,7 @@
     "@types/tinycolor2": "^1.1.0",
     "@types/tween.js": "0.0.31",
     "angular-in-memory-web-api": "~0.2.4",
+    "angular2-auto-scroll": "^1.0.12",
     "angular2-cookie": "^1.2.6",
     "bootstrap": "^4.0.0-alpha.6",
     "core-js": "^2.4.1",

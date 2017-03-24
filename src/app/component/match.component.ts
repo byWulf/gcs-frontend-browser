@@ -101,7 +101,11 @@ export class MatchComponent implements OnInit, OnDestroy {
             } else if (data.key == 'state') {
                 this.match.state = data.data
             } else if (data.key == 'event') {
-                this.visualization.handleGameEvent(data.data.event, data.data);
+                if (data.data.event == 'notification.added') {
+                    this.match.notifications.push(data.data);
+                } else {
+                    this.visualization.handleGameEvent(data.data.event, data.data);
+                }
             } else {
                 console.log("unknown 'match.update' event: " + data.key, data.data);
             }
@@ -189,18 +193,22 @@ export class MatchComponent implements OnInit, OnDestroy {
         return TinyColor(color).brighten(80).desaturate(20).toString();
     }
 
-    getSlots() {
-        if (this.match.state == MatchState.open) {
-            return this.match.slots;
-        }
+    formatTime(time:number): string {
+        let minutes = Math.floor(time / 60);
+        let seconds = time - minutes * 60;
 
-        let slots = {};
+        return (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+    }
+
+    formatText(text:string): string {
+        text = text.replace(/</g,'&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
         for (let i = 0; i < this.match.slots.length; i++) {
-            if (this.match.slots[i].user !== null) {
-                slots[i] = this.match.slots[i];
+            if (this.match.slots[i].user) {
+                text = text.replace(new RegExp('%' + i, 'g'), '<span class="player player' + i + '" style="font-weight: bold; color: ' + TinyColor(this.match.slots[i].color).darken(10).desaturate(10).toString() + ';">' + this.match.slots[i].user.displayName + '</span>');
             }
         }
-        return slots;
+
+        return text;
     }
 }

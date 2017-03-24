@@ -18,3 +18,14 @@
     flex-grow: 1;
     position: relative;
 }
+
+.flex-grow-1 {
+    flex-grow: 1;
+}
+
+.pointer-none {
+    pointer-events: none;
+}
+.pointer-auto {
+    pointer-events: auto;
+}

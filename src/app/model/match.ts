@@ -11,6 +11,7 @@ export class Match {
     slots: Slot[];
     masterUser: User;
     elements: Object[];
+    notifications: Notification[];
 }
 
 export const MatchState = {
@@ -19,3 +20,8 @@ export const MatchState = {
     finished: "finished" as MatchStateEnum,
     canceled: "canceled" as MatchStateEnum
 };
+
+export class Notification {
+    time: number;
+    text: string;
+}

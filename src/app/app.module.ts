@@ -20,6 +20,9 @@ import {UserService} from "./service/user.service";
 import {CookieService} from "angular2-cookie/services/cookies.service";
 import {WindowRefService} from "./service/windowRef.service";
 
+import {Angular2AutoScroll} from "angular2-auto-scroll/lib/angular2-auto-scroll.directive";
+import {SafeHtmlPipe} from "./pipe/safeHtml.pipe";
+
 
 @NgModule({
     imports: [
@@ -37,6 +40,8 @@ import {WindowRefService} from "./service/windowRef.service";
         MatchCreateComponent,
         MatchComponent,
         MatchesComponent,
+        Angular2AutoScroll,
+        SafeHtmlPipe
     ],
     providers: [
         GameService,
