@@ -33,8 +33,7 @@ export class MatchComponent implements OnInit, OnDestroy {
 
     user: User;
 
-    private userSub:Subscription;
-    private updateSub:Subscription;
+    private subscriptions:Subscription[] = [];
 
     MatchState = MatchState;
     TinyColor = TinyColor;
@@ -90,11 +89,11 @@ export class MatchComponent implements OnInit, OnDestroy {
                 }
             });
 
-        this.userSub = this.userService.userSubject.subscribe(user => {
+        this.subscriptions.push(this.userService.userSubject.subscribe(user => {
             this.user = user;
-        });
+        }));
 
-        this.updateSub = this.communicationService.listen('match.update').subscribe(data => {
+        this.subscriptions.push(this.communicationService.listen('match.update').subscribe(data => {
             if (!this.match) return;
 
             if (data.key === 'slots') {
@@ -106,8 +105,7 @@ export class MatchComponent implements OnInit, OnDestroy {
             } else {
                 console.log("unknown 'match.update' event: " + data.key, data.data);
             }
-        });
-
+        }));
     }
 
     ngAfterViewInit(): void {
@@ -124,8 +122,9 @@ export class MatchComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.userSub.unsubscribe();
-        this.updateSub.unsubscribe();
+        for (let subscription of this.subscriptions) {
+            subscription.unsubscribe();
+        }
     }
 
     isLoggedIn(): boolean {
@@ -188,5 +187,20 @@ export class MatchComponent implements OnInit, OnDestroy {
 
     lightenColor(color: string): string {
         return TinyColor(color).brighten(80).desaturate(20).toString();
+    }
+
+    getSlots() {
+        if (this.match.state == MatchState.open) {
+            return this.match.slots;
+        }
+
+        let slots = {};
+
+        for (let i = 0; i < this.match.slots.length; i++) {
+            if (this.match.slots[i].user !== null) {
+                slots[i] = this.match.slots[i];
+            }
+        }
+        return slots;
     }
 }
