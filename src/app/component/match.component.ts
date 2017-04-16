@@ -73,7 +73,9 @@ export class MatchComponent implements OnInit, OnDestroy {
                                         console.error('Error while calling method "' + methodName + '": ', data);
                                     }
                                 });
-                            });
+                            }, this.match.slots, this.user);
+
+                            this.visualization.handleSlotEvent(this.match.slots, this.user);
 
                             //First add all elements to the visualization
                             for (let element of data.elements) {
@@ -91,6 +93,10 @@ export class MatchComponent implements OnInit, OnDestroy {
 
         this.subscriptions.push(this.userService.userSubject.subscribe(user => {
             this.user = user;
+
+            if (this.match && this.visualization) {
+                this.visualization.handleSlotEvent(this.match.slots, this.user);
+            }
         }));
 
         this.subscriptions.push(this.communicationService.listen('match.update').subscribe(data => {
@@ -98,14 +104,16 @@ export class MatchComponent implements OnInit, OnDestroy {
 
             if (data.key === 'slots') {
                 this.match.slots = data.data;
+
+                this.visualization.handleSlotEvent(data.data, this.user);
             } else if (data.key == 'state') {
                 this.match.state = data.data
             } else if (data.key == 'event') {
                 if (data.data.event == 'notification.added') {
                     this.match.notifications.push(data.data);
-                } else {
-                    this.visualization.handleGameEvent(data.data.event, data.data);
                 }
+
+                this.visualization.handleGameEvent(data.data.event, data.data);
             } else {
                 console.log("unknown 'match.update' event: " + data.key, data.data);
             }
