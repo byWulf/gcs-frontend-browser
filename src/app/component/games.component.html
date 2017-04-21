@@ -19,7 +19,7 @@
                         <p class="card-text text-muted" *ngIf="game.minPlayers != game.maxPlayers">Für {{game.minPlayers}} bis {{game.maxPlayers}} Spieler.</p>
                     </div>
                     <div class="card-footer">
-                        <a [routerLink]="['/matches/create', game.key]" class="btn btn-primary" *ngIf="user.id > 0">Erstellen</a>
+                        <a [routerLink]="['/matches/create', game.key]" class="btn btn-primary" *ngIf="user">Erstellen</a>
                         <a [routerLink]="['/matches/list', game.key]" class="btn btn-primary">Beitreten</a>
                     </div>
                 </div>
