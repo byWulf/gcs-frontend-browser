@@ -125,8 +125,10 @@ export class MatchComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.visualization.destroy();
-        this.visualization = null;
+        if (this.visualization) {
+            this.visualization.destroy();
+            this.visualization = null;
+        }
 
         this.matchService.closeMatch().then(data => {
             if (data instanceof EventCallbackError) {
