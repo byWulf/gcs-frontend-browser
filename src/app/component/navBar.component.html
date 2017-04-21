@@ -15,16 +15,74 @@
                 <a [routerLink]="['/matches']" class="nav-link">Partien</a>
             </li>
         </ul>
-        <span class="navbar-text" *ngIf="!user">
-            Logge ein...
-        </span>
-        <span class="navbar-text" *ngIf="user && user.id > 0">
-            Eingeloggt als <strong>{{user.displayName}}</strong>
-            <button class="btn btn-default btn-sm" (click)="logoutUser()">Logout</button>
-        </span>
-        <span class="navbar-text" *ngIf="!user || user.id == 0">
-            <button class="btn btn-default btn-sm" *ngIf="cookieUserId" (click)="loginUser()">Einloggen</button>
-            <button class="btn btn-default btn-sm" (click)="registerUser()">Registrieren</button>
-        </span>
+        <div class="pull-right">
+            <span class="navbar-text" *ngIf="userStatus != 'loggingOut' && user">
+                Eingeloggt als <strong>{{user.displayName}}</strong>
+                <button class="btn btn-default btn-sm" (click)="logoutUser()">Logout</button>
+            </span>
+            <span class="navbar-text" *ngIf="userStatus == 'loggingOut'">
+                Logge aus...
+            </span>
+            <div class="navbar-text" *ngIf="!user">
+                <div class="dropdown">
+                    <button class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">Einloggen</button>
+                    <ul id="loginDropdown" class="dropdown-menu dropdown-menu-right">
+                        <li>
+                            <form (submit)="loginUser()">
+                                <p *ngIf="userStatus == 'loggingIn'">Logge ein...</p>
+                                <div class="form-group">
+                                    <label for="loginUsername">Username / Email:</label>
+                                    <input type="text" class="form-control" id="loginUsername" [value]="loginUsername" [disabled]="userStatus == 'loggingIn'">
+                                </div>
+                                <div class="form-group" [ngClass]="{'has-danger': loginError}">
+                                    <label for="loginPassword">Passwort:</label>
+                                    <input type="password" class="form-control" id="loginPassword" [disabled]="userStatus == 'loggingIn'">
+                                    <div class="form-control-feedback" *ngIf="loginError">Ungültiger Username oder Passwort</div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" [disabled]="userStatus == 'loggingIn'">Einloggen</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="navbar-text" *ngIf="!user">
+                <div class="dropdown">
+                    <button class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">Registrieren</button>
+                    <ul id="registerDropdown" class="dropdown-menu dropdown-menu-right">
+                        <li>
+                            <form (submit)="registerUser()">
+                                <p *ngIf="userStatus == 'registering'">Registriere...</p>
+                                <div class="form-group" [ngClass]="{'has-danger': registerErrors.username}">
+                                    <label for="registerUsername">Username:</label>
+                                    <input type="text" class="form-control" id="registerUsername" required [disabled]="userStatus == 'registering'">
+                                    <div class="form-control-feedback">{{registerErrors.username}}</div>
+                                </div>
+                                <div class="form-group" [ngClass]="{'has-danger': registerErrors.email}">
+                                    <label for="registerEmail">Email:</label>
+                                    <input type="email" class="form-control" id="registerEmail" required [disabled]="userStatus == 'registering'">
+                                    <div class="form-control-feedback">{{registerErrors.email}}</div>
+                                </div>
+                                <div class="form-group" [ngClass]="{'has-danger': registerErrors.email2}">
+                                    <label for="registerEmail2">Emailwiederholung:</label>
+                                    <input type="email" class="form-control" id="registerEmail2" required [disabled]="userStatus == 'registering'">
+                                    <div class="form-control-feedback">{{registerErrors.email2}}</div>
+                                </div>
+                                <div class="form-group" [ngClass]="{'has-danger': registerErrors.password}">
+                                    <label for="registerPassword">Passwort:</label>
+                                    <input type="password" class="form-control" id="registerPassword" required [disabled]="userStatus == 'registering'">
+                                    <div class="form-control-feedback">{{registerErrors.password}}</div>
+                                </div>
+                                <div class="form-group" [ngClass]="{'has-danger': registerErrors.password2}">
+                                    <label for="registerPassword2">Passwortwiederholung:</label>
+                                    <input type="password" class="form-control" id="registerPassword2" required [disabled]="userStatus == 'registering'">
+                                    <div class="form-control-feedback">{{registerErrors.password2}}</div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" [disabled]="userStatus == 'registering'">Registrieren</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </nav>
