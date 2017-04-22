@@ -8,14 +8,12 @@ import {EventCallbackError} from "../model/eventCallbackError";
 
 @Component({
     moduleId: module.id,
-    selector: 'my-navbar',
-    templateUrl: './navBar.component.html',
-    styleUrls: [ './navBar.component.css' ]
+    selector: 'user-login',
+    templateUrl: './user-login.component.html',
+    styleUrls: [ './user-login.component.css' ]
 })
 
-export class NavBarComponent implements OnInit {
-    title = 'Game Central Station';
-    user: User;
+export class UserLoginComponent implements OnInit {
     userStatus:string;
     loginUsername:string;
     loginError: boolean = false;
@@ -26,7 +24,6 @@ export class NavBarComponent implements OnInit {
         this.loginUsername = <string>this.cookieService.getObject('username');
 
         this.userService.userSubject.subscribe(user => {
-            this.user = user;
             if (user) {
                 this.loginUsername = user.displayName;
             }

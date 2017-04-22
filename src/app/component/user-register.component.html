@@ -1,0 +1,36 @@
+<div class="dropdown">
+    <button class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">Registrieren</button>
+    <ul id="registerDropdown" class="dropdown-menu dropdown-menu-right">
+        <li>
+            <form (submit)="registerUser()">
+                <p *ngIf="userStatus == 'registering'">Registriere...</p>
+                <div class="form-group" [ngClass]="{'has-danger': registerErrors.username}">
+                    <label for="registerUsername">Username:</label>
+                    <input type="text" class="form-control" id="registerUsername" required [disabled]="userStatus == 'registering'">
+                    <div class="form-control-feedback">{{registerErrors.username}}</div>
+                </div>
+                <div class="form-group" [ngClass]="{'has-danger': registerErrors.email}">
+                    <label for="registerEmail">Email:</label>
+                    <input type="email" class="form-control" id="registerEmail" required [disabled]="userStatus == 'registering'">
+                    <div class="form-control-feedback">{{registerErrors.email}}</div>
+                </div>
+                <div class="form-group" [ngClass]="{'has-danger': registerErrors.email2}">
+                    <label for="registerEmail2">Emailwiederholung:</label>
+                    <input type="email" class="form-control" id="registerEmail2" required [disabled]="userStatus == 'registering'">
+                    <div class="form-control-feedback">{{registerErrors.email2}}</div>
+                </div>
+                <div class="form-group" [ngClass]="{'has-danger': registerErrors.password}">
+                    <label for="registerPassword">Passwort:</label>
+                    <input type="password" class="form-control" id="registerPassword" required [disabled]="userStatus == 'registering'">
+                    <div class="form-control-feedback">{{registerErrors.password}}</div>
+                </div>
+                <div class="form-group" [ngClass]="{'has-danger': registerErrors.password2}">
+                    <label for="registerPassword2">Passwortwiederholung:</label>
+                    <input type="password" class="form-control" id="registerPassword2" required [disabled]="userStatus == 'registering'">
+                    <div class="form-control-feedback">{{registerErrors.password2}}</div>
+                </div>
+                <button type="submit" class="btn btn-primary" [disabled]="userStatus == 'registering'">Registrieren</button>
+            </form>
+        </li>
+    </ul>
+</div>

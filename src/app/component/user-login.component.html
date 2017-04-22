@@ -1,0 +1,20 @@
+<div class="dropdown">
+    <button class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">Einloggen</button>
+    <ul id="loginDropdown" class="dropdown-menu dropdown-menu-right">
+        <li>
+            <form (submit)="loginUser()">
+                <p *ngIf="userStatus == 'loggingIn'">Logge ein...</p>
+                <div class="form-group">
+                    <label for="loginUsername">Username / Email:</label>
+                    <input type="text" class="form-control" id="loginUsername" [value]="loginUsername" [disabled]="userStatus == 'loggingIn'">
+                </div>
+                <div class="form-group" [ngClass]="{'has-danger': loginError}">
+                    <label for="loginPassword">Passwort:</label>
+                    <input type="password" class="form-control" id="loginPassword" [disabled]="userStatus == 'loggingIn'">
+                    <div class="form-control-feedback" *ngIf="loginError">Ungültiger Username oder Passwort</div>
+                </div>
+                <button type="submit" class="btn btn-primary" [disabled]="userStatus == 'loggingIn'">Einloggen</button>
+            </form>
+        </li>
+    </ul>
+</div>
