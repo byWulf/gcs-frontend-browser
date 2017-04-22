@@ -19,7 +19,7 @@ export class MatchService {
         });
     }
 
-    openMatch(id: number): Promise<Match | EventCallbackError> {
+    openMatch(id: string): Promise<Match | EventCallbackError> {
         return this.communicationService.sendData({
             action: 'match.openMatch',
             data: {

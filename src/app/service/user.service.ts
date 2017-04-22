@@ -44,7 +44,7 @@ export class UserService {
                     console.log('Could not register: ', data);
                 }
             } else {
-                this.setLoggedinUser(data.user, data.authToken);
+                this.setLoggedinUser(data);
             }
         });
     }
@@ -60,18 +60,9 @@ export class UserService {
             if (data instanceof EventCallbackError) {
                 onError(data);
             } else {
-                this.setLoggedinUser(data.user, data.authToken);
+                this.setLoggedinUser(data);
             }
         });
-    }
-
-    private setLoggedinUser(user: User, authToken: string): void {
-        this.user = user;
-        this.userSubject.next(this.user);
-
-        this.userSession = {userId: this.user.id, authToken: authToken};
-        this.cookieService.putObject('userSession', this.userSession);
-        this.cookieService.putObject('username', this.user.displayName);
     }
 
     private loginWithAuthToken(userId: number, authToken: string): void {
@@ -85,7 +76,7 @@ export class UserService {
             if (data instanceof EventCallbackError) {
                 console.log("Relogin was not successful: ", data);
             } else {
-                this.setLoggedinUser(data.user, data.authToken);
+                this.setLoggedinUser(data);
             }
         });
     }
@@ -104,5 +95,18 @@ export class UserService {
                 this.cookieService.remove('userSession');
             }
         });
+    }
+
+    private setLoggedinUser(data: any): void {
+        this.user = new User();
+        this.user.id = data.id;
+        this.user.displayName = data.displayName;
+
+        console.log("this.user = ", this.user);
+        this.userSubject.next(this.user);
+
+        this.userSession = {userId: this.user.id, authToken: data.authToken};
+        this.cookieService.putObject('userSession', this.userSession);
+        this.cookieService.putObject('username', this.user.displayName);
     }
 }

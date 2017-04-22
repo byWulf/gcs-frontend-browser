@@ -17,7 +17,7 @@
                         </span>
                         <span class="text-muted" *ngIf="slot.user === null">Frei</span>
                     </div>
-                    <div class="card-footer" *ngIf="match.state === MatchState.open && isLoggedIn() && isMe(slot.user) && !isMe(match.masterUser)">
+                    <div class="card-footer" *ngIf="match.state === MatchState.open && isLoggedIn() && isMe(slot.user) && !isMe(match.masterUserId)">
                         <button type="button" class="btn btn-danger btn-sm" (click)="leave()">Verlassen</button>
                     </div>
                     <div class="card-footer" *ngIf="match.state === MatchState.open && isLoggedIn() && slot.user === null && !isJoined()">
@@ -45,7 +45,7 @@
                         </h2>
                     </div>
                 </div>
-                <div class="row" *ngIf="match.state === MatchState.open && isLoggedIn() && isMe(match.masterUser)">
+                <div class="row" *ngIf="match.state === MatchState.open && isLoggedIn() && isMe(match.masterUserId)">
                     <div class="col">
                         <button type="button" class="btn btn-primary pointer-auto" (click)="start()">Starten</button>
                         <button type="button" class="btn btn-danger pointer-auto" (click)="cancel()">Abbrechen</button>

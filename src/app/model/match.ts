@@ -5,11 +5,11 @@ import { Slot } from './slot';
 type MatchStateEnum = "open" | "running" | "finished" | "canceled";
 
 export class Match {
-    id: number;
+    id: string;
     state: MatchStateEnum = MatchState.open;
     game: Game;
     slots: Slot[];
-    masterUser: User;
+    masterUserId: string;
     elements: Object[];
     notifications: Notification[];
 }

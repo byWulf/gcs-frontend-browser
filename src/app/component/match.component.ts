@@ -31,7 +31,7 @@ export class MatchComponent implements OnInit, OnDestroy {
 
     match: Match = null;
 
-    user: User;
+    user: User = null;
 
     private subscriptions:Subscription[] = [];
 
@@ -54,48 +54,17 @@ export class MatchComponent implements OnInit, OnDestroy {
 
         this.route.params.switchMap((params: Params) => this.matchService.openMatch(params['id']))
             .subscribe(data => {
-                if (data instanceof EventCallbackError) {
-                    console.error('Error while opening match: ', data);
-                    this.match = null;
-                } else {
-                    this.match = data;
-
-                    if (this.visualization) {
-                        this.visualization.destroy();
-                        this.visualization = null;
-                    }
-
-                    this.visualizationReady.subscribe(ready => {
-                        if (ready) {
-                            this.visualization = new Visualization(this.windowRef.nativeWindow, this.sceneContainerRef.nativeElement, this.match.game.key, (methodName: string, elementId: string, data: any): void => {
-                                this.matchService.callMethod(this.match, elementId, methodName, data).then(data => {
-                                    if (data instanceof EventCallbackError) {
-                                        console.error('Error while calling method "' + methodName + '": ', data);
-                                    }
-                                });
-                            }, this.match.slots, this.user);
-
-                            this.visualization.handleSlotEvent(this.match.slots, this.user);
-
-                            //First add all elements to the visualization
-                            for (let element of data.elements) {
-                                this.visualization.handleGameEvent('element.added', element);
-                            }
-
-                            //Then explicitly move them to the correct parent (it could be, that at adding an element, its parent isn't created yet and so is no valid parent target)
-                            for (let element of data.elements) {
-                                this.visualization.handleGameEvent('element.moved', element);
-                            }
-                        }
-                    });
-                }
+                this.handleOpenedMatch(data);
             });
 
         this.subscriptions.push(this.userService.userSubject.subscribe(user => {
+            let oldUser:User = this.user;
             this.user = user;
 
-            if (this.match && this.visualization) {
-                this.visualization.handleSlotEvent(this.match.slots, this.user);
+            if (this.match && user !== oldUser) {
+                this.matchService.openMatch(this.match.id).then(data => {
+                    this.handleOpenedMatch(data);
+                });
             }
         }));
 
@@ -120,6 +89,44 @@ export class MatchComponent implements OnInit, OnDestroy {
         }));
     }
 
+    private handleOpenedMatch(match:EventCallbackError|Match): void {
+        if (match instanceof EventCallbackError) {
+            console.error('Error while opening match: ', match);
+            this.match = null;
+        } else {
+            this.match = match;
+
+            if (this.visualization) {
+                this.visualization.destroy();
+                this.visualization = null;
+            }
+
+            this.visualizationReady.subscribe(ready => {
+                if (ready) {
+                    this.visualization = new Visualization(this.windowRef.nativeWindow, this.sceneContainerRef.nativeElement, this.match.game.key, (methodName: string, elementId: string, data: any): void => {
+                        this.matchService.callMethod(this.match, elementId, methodName, data).then(data => {
+                            if (data instanceof EventCallbackError) {
+                                console.error('Error while calling method "' + methodName + '": ', data);
+                            }
+                        });
+                    }, this.match.slots, this.user);
+
+                    this.visualization.handleSlotEvent(this.match.slots, this.user);
+
+                    //First add all elements to the visualization
+                    for (let element of match.elements) {
+                        this.visualization.handleGameEvent('element.added', element);
+                    }
+
+                    //Then explicitly move them to the correct parent (it could be, that at adding an element, its parent isn't created yet and so is no valid parent target)
+                    for (let element of match.elements) {
+                        this.visualization.handleGameEvent('element.moved', element);
+                    }
+                }
+            });
+        }
+    }
+
     ngAfterViewInit(): void {
         this.visualizationReady.next(true);
     }
@@ -130,11 +137,7 @@ export class MatchComponent implements OnInit, OnDestroy {
             this.visualization = null;
         }
 
-        this.matchService.closeMatch().then(data => {
-            if (data instanceof EventCallbackError) {
-                console.error('Error while closing match: ', data);
-            }
-        });
+        this.matchService.closeMatch();
 
         for (let subscription of this.subscriptions) {
             subscription.unsubscribe();
@@ -142,11 +145,11 @@ export class MatchComponent implements OnInit, OnDestroy {
     }
 
     isLoggedIn(): boolean {
-        return this.user && this.user.id > 0;
+        return !!this.user;
     }
 
-    isMe(user:User): boolean {
-        return user && user.id === this.user.id;
+    isMe(userId:string): boolean {
+        return this.user && userId === this.user.id;
     }
 
     isJoined(): boolean {

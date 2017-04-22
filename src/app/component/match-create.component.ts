@@ -46,7 +46,7 @@ export class MatchCreateComponent implements OnInit, OnDestroy {
         this.userSub = this.userService.userSubject.subscribe(user => {
             this.user = user;
 
-            if (user.id == 0) {
+            if (user === null) {
                 this.router.navigate(['/games']);
             }
         });
