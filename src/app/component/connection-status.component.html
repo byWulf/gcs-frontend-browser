@@ -1,0 +1,23 @@
+<div class="modal" id="connectionModal" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div *ngIf="!wasConnected && connectionStatus != 'reconnect_failed'">
+                    Verbinde mich zum Spieleserver...
+                </div>
+                <div *ngIf="!wasConnected && connectionStatus == 'reconnect_failed'">
+                    Konnte mich nicht zum Spieleserver verbinden. Sollte es an uns liegen, arbeiten wir bereits mit Hochdruck an der Lösung. Prüfe dennoch deine Internetverbindung, nur um sicherzugehen.
+                </div>
+                <div *ngIf="connectionStatus == 'disconnect'">
+                    Verbindung zum Spieleserver verloren.
+                </div>
+                <div *ngIf="connectionStatus == 'reconnecting' && wasConnected">
+                    Verbindung zum Spieleserver verloren. Versuche mich neu zu verbinden...
+                </div>
+                <div *ngIf="connectionStatus == 'reconnect_failed' && wasConnected">
+                    Verbindung zum Spieleserver verloren. Leider konnte ich mich auch nicht wiederverwenden. Sollte es an uns liegen, arbeiten wir bereits mit Hochdruck an der Lösung. Prüfe dennoch deine Internetverbindung, nur um sicherzugehen.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

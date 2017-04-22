@@ -12,12 +12,20 @@ export class UserService {
     user: User;
     userSubject:BehaviorSubject<User> = new BehaviorSubject(this.user);
     statusSubject:BehaviorSubject<string> = new BehaviorSubject(null);
+    userSession:any = null;
 
     constructor(private communicationService: CommunicationService, private cookieService: CookieService) {
-        let userSession:any = this.cookieService.getObject('userSession');
-        if (userSession) {
-            this.loginWithAuthToken(userSession.userId, userSession.authToken);
-        }
+        this.userSession = this.cookieService.getObject('userSession');
+
+        this.communicationService.connectionSubject.subscribe(status => {
+            if (status == 'connect' && this.userSession) {
+                this.loginWithAuthToken(this.userSession.userId, this.userSession.authToken);
+            }
+            if (status != 'connect' && this.user) {
+                this.user = null;
+                this.userSubject.next(this.user);
+            }
+        });
     }
 
     register(username: string, email: string, password: string, onFieldError:(errors:any) => void): void {
@@ -61,7 +69,8 @@ export class UserService {
         this.user = user;
         this.userSubject.next(this.user);
 
-        this.cookieService.putObject('userSession', {userId: this.user.id, authToken: authToken});
+        this.userSession = {userId: this.user.id, authToken: authToken};
+        this.cookieService.putObject('userSession', this.userSession);
         this.cookieService.putObject('username', this.user.displayName);
     }
 
@@ -92,7 +101,7 @@ export class UserService {
                 this.user = null;
                 this.userSubject.next(this.user);
 
-                this.cookieService.remove('userId');
+                this.cookieService.remove('userSession');
             }
         });
     }

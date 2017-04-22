@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import {Observer} from "rxjs/Observer";
 import * as io from "socket.io-client";
+import { BehaviorSubject } from "rxjs/BehaviorSubject";
 
 import { Event } from '../model/event';
 import {EventCallbackError} from "../model/eventCallbackError";
@@ -9,9 +10,18 @@ import {EventCallbackError} from "../model/eventCallbackError";
 @Injectable()
 export class CommunicationService {
     private url = document.location.protocol + '//' + document.location.hostname +  ':3700';
-    private socket: any = io(this.url);
+    private socket: any;
+    connectionSubject:BehaviorSubject<string> = new BehaviorSubject('connecting');
 
     private messageId: number = 0;
+
+    constructor() {
+        this.socket = io(this.url);
+
+        for (let event of ['connect', 'disconnect', 'reconnecting', 'reconnect_failed']) {
+            this.socket.on(event, () => this.connectionSubject.next(event));
+        }
+    }
 
     sendData(event: Event): Promise<any> {
         let messageId = this.messageId++;
