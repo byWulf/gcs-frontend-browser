@@ -9,7 +9,7 @@ import { User } from '../model/user';
 
 @Injectable()
 export class UserService {
-    user: User;
+    user: User = null;
     userSubject:BehaviorSubject<User> = new BehaviorSubject(this.user);
     statusSubject:BehaviorSubject<string> = new BehaviorSubject(null);
     userSession:any = null;
@@ -26,6 +26,10 @@ export class UserService {
                 this.userSubject.next(this.user);
             }
         });
+    }
+
+    hasRole(role: string): boolean {
+        return this.user !== null && this.user.roles.indexOf(role) > -1;
     }
 
     register(username: string, email: string, password: string, onFieldError:(errors:any) => void): void {
@@ -101,8 +105,8 @@ export class UserService {
         this.user = new User();
         this.user.id = data.id;
         this.user.displayName = data.displayName;
+        this.user.roles = data.roles;
 
-        console.log("this.user = ", this.user);
         this.userSubject.next(this.user);
 
         this.userSession = {userId: this.user.id, authToken: data.authToken};
