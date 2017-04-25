@@ -21,7 +21,7 @@ export class UserLoginComponent implements OnInit {
     constructor(private userService:UserService, private cookieService:CookieService) {}
 
     ngOnInit(): void {
-        this.loginUsername = <string>this.cookieService.getObject('username');
+        this.loginUsername = <string>this.cookieService.getObject('username') || '';
 
         this.userService.userSubject.subscribe(user => {
             if (user) {
