@@ -1,33 +1,41 @@
-<nav class="navbar navbar-toggleable-sm sticky-top navbar-light bg-faded">
+<nav class="navbar navbar-toggleable-sm sticky-top navbar-light bg-faded" (mouseenter)="navbarEntered()" (mouseleave)="navbarLeft()">
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Navigation einblenden/ausblenden">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <a class="navbar-brand" href="#">{{title}}</a>
+    <span class="navbar-brand">{{title}}</span>
     <div class="collapse navbar-collapse" id="navbarContent">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item" routerLinkActive="active">
-                <a [routerLink]="['/dashboard']" class="nav-link">Startseite</a>
-            </li>
-            <li class="nav-item" routerLinkActive="active">
-                <a [routerLink]="['/games']" class="nav-link">Spiele</a>
-            </li>
-            <li class="nav-item" routerLinkActive="active">
-                <a [routerLink]="['/matches']" class="nav-link">Partien</a>
-            </li>
-        </ul>
-        <div class="pull-right">
-            <span class="navbar-text" *ngIf="userStatus != 'loggingOut' && user">
-                Eingeloggt als <strong>{{user.displayName}}</strong>
-                <button class="btn btn-default btn-sm" (click)="logoutUser()">Logout</button>
-            </span>
-            <span class="navbar-text" *ngIf="userStatus == 'loggingOut'">
-                Logge aus...
-            </span>
-            <div class="navbar-text" *ngIf="!user">
-                <user-login></user-login>
-            </div>
-            <div class="navbar-text" *ngIf="!user">
-                <user-register></user-register>
+        <div [ngClass]="'navbarStack ' + navbarLayer">
+            <div class="navbarRows">
+                <div class="navbarRow">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item" routerLinkActive="active">
+                            <a [routerLink]="['/dashboard']" class="nav-link">Startseite</a>
+                        </li>
+                        <li class="nav-item" routerLinkActive="active">
+                            <a [routerLink]="['/games']" class="nav-link">Spiele</a>
+                        </li>
+                        <li class="nav-item" routerLinkActive="active">
+                            <a [routerLink]="['/matches']" class="nav-link">Partien</a>
+                        </li>
+                    </ul>
+                    <div class="pull-right">
+                        <span class="navbar-text" *ngIf="userStatus != 'loggingOut' && user">
+                            Eingeloggt als <strong>{{user.displayName}}</strong>
+                            <button class="btn btn-default btn-sm" (click)="logoutUser()">Logout</button>
+                        </span>
+                        <span class="navbar-text" *ngIf="userStatus == 'loggingOut'">
+                            Logge aus...
+                        </span>
+                        <div class="navbar-text" *ngIf="!user">
+                            <button class="btn btn-default btn-sm" data-toggle="modal" data-target="#loginModal">Einloggen</button>
+                        </div>
+                        <div class="navbar-text" *ngIf="!user">
+                            <button class="btn btn-default btn-sm" data-toggle="modal" data-target="#registerModal">Registrieren</button>
+                        </div>
+                    </div>
+                </div>
+
+                <matchNavbar [parentComponent]="self"></matchNavbar>
             </div>
         </div>
     </div>

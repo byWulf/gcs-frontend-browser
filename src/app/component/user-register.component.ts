@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, AfterViewInit} from '@angular/core';
 
 import { UserService } from '../service/user.service';
 import { CookieService } from 'angular2-cookie/core';
@@ -26,8 +26,24 @@ export class UserRegisterComponent implements OnInit {
     constructor(private userService:UserService, private cookieService:CookieService) {}
 
     ngOnInit(): void {
+        this.userService.userSubject.subscribe(user => {
+            if (user) {
+                $('#registerModal')['modal']('hide');
+            }
+        });
+
         this.userService.statusSubject.subscribe(status => {
             this.userStatus = status;
+        });
+    }
+
+    ngAfterViewInit(): void {
+        $('#registerModal').on('hidden.bs.modal', () => {
+            $('#registerUsername').val('');
+            $('#registerEmail').val('');
+            $('#registerEmail2').val('');
+            $('#registerPassword').val('');
+            $('#registerPassword2').val('');
         });
     }
 

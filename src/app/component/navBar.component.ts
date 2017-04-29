@@ -1,38 +1,50 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, Input, ViewEncapsulation} from '@angular/core';
+import {Router, NavigationEnd} from '@angular/router';
 
 import { UserService } from '../service/user.service';
-import { CookieService } from 'angular2-cookie/core';
 
 import { User } from '../model/user';
-import {EventCallbackError} from "../model/eventCallbackError";
 
 @Component({
     moduleId: module.id,
     selector: 'my-navbar',
     templateUrl: './navBar.component.html',
-    styleUrls: [ './navBar.component.css' ]
+    styleUrls: [ './navBar.component.css' ],
+    encapsulation: ViewEncapsulation.None
 })
 
 export class NavBarComponent implements OnInit {
+    self = this;
+
     title = 'Game Central Station';
     user: User;
     userStatus:string;
-    loginUsername:string;
-    loginError: boolean = false;
 
-    constructor(private userService:UserService, private cookieService:CookieService) {}
+    navbarLayer: string = 'navbar0';
+    gameNavbarEnabled: boolean = false;
+
+    private leaveTimeout: NodeJS.Timer = null;
+
+    constructor(private userService:UserService, private router: Router) {}
 
     ngOnInit(): void {
-        this.loginUsername = <string>this.cookieService.getObject('username');
-
         this.userService.userSubject.subscribe(user => {
             this.user = user;
-            if (user) {
-                this.loginUsername = user.displayName;
-            }
         });
         this.userService.statusSubject.subscribe(status => {
             this.userStatus = status;
+        });
+
+        this.router.events.subscribe((event) => {
+            if (event instanceof NavigationEnd) {
+                if (/^\/matches\/\d+/.test(event.url)) {
+                    this.gameNavbarEnabled = true;
+                    this.switchNavbar(1);
+                } else {
+                    this.gameNavbarEnabled = false;
+                    this.switchNavbar(0);
+                }
+            }
         });
     }
 
@@ -40,10 +52,21 @@ export class NavBarComponent implements OnInit {
         this.userService.logout();
     }
 
-    loginUser() {
-        this.loginError = false;
-        this.userService.login($('#loginUsername').val(), $('#loginPassword').val(), (error:EventCallbackError) => {
-            this.loginError = true;
-        });
+    switchNavbar(layerIndex: number): void {
+        this.navbarLayer = 'navbar' + layerIndex;
+    }
+
+    navbarEntered(): void {
+        if (this.leaveTimeout) {
+            clearTimeout(this.leaveTimeout);
+        }
+    }
+
+    navbarLeft(): void {
+        this.leaveTimeout = setTimeout(() => {
+            if (this.gameNavbarEnabled) {
+                this.switchNavbar(1);
+            }
+        }, 1000);
     }
 }

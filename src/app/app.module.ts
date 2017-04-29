@@ -11,6 +11,7 @@ import {DashboardComponent} from "./component/dashboard.component";
 import {GamesComponent} from "./component/games.component";
 import {MatchCreateComponent} from "./component/match-create.component";
 import {MatchComponent} from "./component/match.component";
+import {MatchNavbarComponent} from "./component/match-navbar.component";
 import {MatchesComponent} from "./component/matches.component";
 import {UserRegisterComponent} from "./component/user-register.component";
 import {UserLoginComponent} from "./component/user-login.component";
@@ -42,6 +43,7 @@ import {SafeHtmlPipe} from "./pipe/safeHtml.pipe";
         GamesComponent,
         MatchCreateComponent,
         MatchComponent,
+        MatchNavbarComponent,
         MatchesComponent,
         Angular2AutoScroll,
         SafeHtmlPipe,

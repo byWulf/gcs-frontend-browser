@@ -31,28 +31,7 @@
         </div>
     </div>
     <div class="flex-grow-1 d-flex">
-        <div class="flex-grow-1">
-            <div class="container">
-                <div class="row">
-                    <div class="col">
-                        <h2>
-                            Partie # {{match.id}}
-                            <small class="text-muted horizontalList">{{match.game.name}}</small>
-                            <small class="text-muted horizontalList" *ngIf="match.state === MatchState.open">Offen</small>
-                            <small class="text-muted horizontalList" *ngIf="match.state === MatchState.running">Läuft</small>
-                            <small class="text-muted horizontalList" *ngIf="match.state === MatchState.finished">Fertig</small>
-                            <small class="text-muted horizontalList" *ngIf="match.state === MatchState.canceled">Abgebrochen</small>
-                        </h2>
-                    </div>
-                </div>
-                <div class="row" *ngIf="match.state === MatchState.open && isLoggedIn() && isMe(match.masterUserId)">
-                    <div class="col">
-                        <button type="button" class="btn btn-primary pointer-auto" (click)="start()">Starten</button>
-                        <button type="button" class="btn btn-danger pointer-auto" (click)="cancel()">Abbrechen</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="flex-grow-1"></div>
         <div class="chat pointer-auto" angular2-auto-scroll lock-y-offset="10" observe-attributes>
             <div class="notification" *ngFor="let notification of match.notifications">
                 <div class="time">{{formatTime(notification.time)}}</div>

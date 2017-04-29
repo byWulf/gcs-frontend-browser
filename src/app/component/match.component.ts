@@ -178,22 +178,6 @@ export class MatchComponent implements OnInit, OnDestroy {
         });
     }
 
-    cancel() {
-        this.matchService.cancelMatch(this.match).then(data => {
-            if (data instanceof EventCallbackError) {
-                console.error('Error while canceling match: ', data);
-            }
-        });
-    }
-
-    start() {
-        this.matchService.startMatch(this.match).then(data => {
-            if (data instanceof EventCallbackError) {
-                console.error('Error while starting match: ', data);
-            }
-        });
-    }
-
     switchSlot(index:number) {
         this.matchService.switchSlot(this.match, index).then(data => {
             if (data instanceof EventCallbackError) {

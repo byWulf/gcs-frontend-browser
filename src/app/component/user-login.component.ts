@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, AfterViewInit} from '@angular/core';
 
 import { UserService } from '../service/user.service';
 import { CookieService } from 'angular2-cookie/core';
@@ -25,11 +25,18 @@ export class UserLoginComponent implements OnInit {
 
         this.userService.userSubject.subscribe(user => {
             if (user) {
+                $('#loginModal')['modal']('hide');
                 this.loginUsername = user.displayName;
             }
         });
         this.userService.statusSubject.subscribe(status => {
             this.userStatus = status;
+        });
+    }
+
+    ngAfterViewInit(): void {
+        $('#loginModal').on('hidden.bs.modal', () => {
+            $('#loginPassword').val('');
         });
     }
 

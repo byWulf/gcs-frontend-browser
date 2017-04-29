@@ -1,0 +1,16 @@
+<div class="navbarRow" id="matchNavbar" *ngIf="currentMatch">
+    <div class="navbar-text matchId text-muted">Partie # {{currentMatch.id}}</div>
+    <div class="navbar-text gameName">{{currentMatch.game.name}}</div>
+    <div class="navbar-text status">
+        <span *ngIf="currentMatch.state === MatchState.open">Offen - Warte auf weitere Spieler oder darauf, dass der Spielleiter das Spiel startet</span>
+        <span *ngIf="currentMatch.state === MatchState.running">Läuft</span>
+        <span *ngIf="currentMatch.state === MatchState.finished">Beendet</span>
+        <span *ngIf="currentMatch.state === MatchState.canceled">Abgebrochen - Der Spielleiter hat das Spiel abgebrochen oder das Spiel ist abgestürzt</span>
+    </div>
+    <div class="navbar-text flex-grow-1"></div>
+    <div class="navbar-text pull-right">
+        <button type="button" class="btn btn-primary pointer-auto" (click)="startMatch()" *ngIf="currentMatch.state === MatchState.open && isLoggedIn() && isMe(currentMatch.masterUserId)">Starten</button>
+        <button type="button" class="btn btn-danger pointer-auto" (click)="cancelMatch()" *ngIf="currentMatch.state === MatchState.open && isLoggedIn() && isMe(currentMatch.masterUserId)">Abbrechen</button>
+        <button class="btn btn-sm btn-default" (click)="parentComponent.switchNavbar(0)">Zum Hauptmenü</button>
+    </div>
+</div>

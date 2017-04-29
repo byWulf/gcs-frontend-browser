@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from "rxjs/BehaviorSubject";
 
 import { CommunicationService } from './communication.service';
 
@@ -8,6 +9,8 @@ import { EventCallbackError } from '../model/eventCallbackError';
 
 @Injectable()
 export class MatchService {
+    currentMatchSubject:BehaviorSubject<Match> = new BehaviorSubject(null);
+
     constructor(private communicationService: CommunicationService) {}
 
     getMatches(gameKey?:string): Promise<Match[] | EventCallbackError> {
@@ -20,18 +23,34 @@ export class MatchService {
     }
 
     openMatch(id: string): Promise<Match | EventCallbackError> {
-        return this.communicationService.sendData({
-            action: 'match.openMatch',
-            data: {
-                matchId: id
-            }
+        return new Promise(resolve => {
+            this.communicationService.sendData({
+                action: 'match.openMatch',
+                data: {
+                    matchId: id
+                }
+            }).then((match:Match|EventCallbackError) => {
+                if (!(match instanceof EventCallbackError)) {
+                    this.currentMatchSubject.next(match);
+                }
+
+                resolve(match);
+            });
         });
     }
 
     closeMatch(): Promise<boolean | EventCallbackError> {
-        return this.communicationService.sendData({
-            action: 'match.closeMatch'
-        })
+        return new Promise(resolve => {
+            this.communicationService.sendData({
+                action: 'match.closeMatch'
+            }).then((successful:boolean|EventCallbackError) => {
+                if (!(successful instanceof EventCallbackError) && successful === true) {
+                    this.currentMatchSubject.next(null);
+                }
+
+                resolve(successful);
+            });
+        });
     }
 
     createMatch(game:Game): Promise<number | EventCallbackError> {
