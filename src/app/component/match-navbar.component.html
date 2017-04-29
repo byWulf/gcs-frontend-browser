@@ -1,13 +1,17 @@
 <div class="navbarRow" id="matchNavbar" *ngIf="currentMatch">
-    <div class="navbar-text matchId text-muted">Partie # {{currentMatch.id}}</div>
-    <div class="navbar-text gameName">{{currentMatch.game.name}}</div>
-    <div class="navbar-text status">
-        <span *ngIf="currentMatch.state === MatchState.open">Offen - Warte auf weitere Spieler oder darauf, dass der Spielleiter das Spiel startet</span>
-        <span *ngIf="currentMatch.state === MatchState.running">Läuft</span>
-        <span *ngIf="currentMatch.state === MatchState.finished">Beendet</span>
-        <span *ngIf="currentMatch.state === MatchState.canceled">Abgebrochen - Der Spielleiter hat das Spiel abgebrochen oder das Spiel ist abgestürzt</span>
+    <div class="navbar-text matchId">
+        <div class="text-muted">Partie # {{currentMatch.id}}</div>
+        <div>
+            <span *ngIf="currentMatch.state === MatchState.open" class="text-warning">Offen - Warte auf weitere Spieler oder darauf, dass der Spielleiter das Spiel startet</span>
+            <span *ngIf="currentMatch.state === MatchState.running" class="text-success">Läuft</span>
+            <span *ngIf="currentMatch.state === MatchState.finished">Beendet</span>
+            <span *ngIf="currentMatch.state === MatchState.canceled" class="text-danger">Abgebrochen - Der Spielleiter hat das Spiel abgebrochen oder das Spiel ist abgestürzt</span>
+        </div>
     </div>
-    <div class="navbar-text flex-grow-1"></div>
+    <div class="navbar-text gameName">{{currentMatch.game.name}}</div>
+    <div class="navbar-text statusMessage flex-grow-1" *ngIf="currentMatch.state === MatchState.running && currentMatch.statusMessage">
+        <span [innerHTML]="matchService.formatText(currentMatch, currentMatch.statusMessage) | safeHtml"></span>
+    </div>
     <div class="navbar-text pull-right">
         <button type="button" class="btn btn-primary pointer-auto" (click)="startMatch()" *ngIf="currentMatch.state === MatchState.open && isLoggedIn() && isMe(currentMatch.masterUserId)">Starten</button>
         <button type="button" class="btn btn-danger pointer-auto" (click)="cancelMatch()" *ngIf="currentMatch.state === MatchState.open && isLoggedIn() && isMe(currentMatch.masterUserId)">Abbrechen</button>

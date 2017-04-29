@@ -35,7 +35,7 @@
         <div class="chat pointer-auto" angular2-auto-scroll lock-y-offset="10" observe-attributes>
             <div class="notification" *ngFor="let notification of match.notifications">
                 <div class="time">{{formatTime(notification.time)}}</div>
-                <div class="text" [innerHTML]="formatText(notification.text) | safeHtml"></div>
+                <div class="text" [innerHTML]="matchService.formatText(match, notification.text) | safeHtml"></div>
             </div>
         </div>
     </div>

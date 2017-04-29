@@ -78,7 +78,9 @@ export class MatchComponent implements OnInit, OnDestroy {
             } else if (data.key == 'state') {
                 this.match.state = data.data
             } else if (data.key == 'event') {
-                if (data.data.event == 'notification.added') {
+                if (data.data.event == 'statusMessage.changed') {
+                    this.match.statusMessage = data.data.text;
+                } else if (data.data.event == 'notification.added') {
                     this.match.notifications.push(data.data);
                 }
 
@@ -195,17 +197,5 @@ export class MatchComponent implements OnInit, OnDestroy {
         let seconds = time - minutes * 60;
 
         return (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-    }
-
-    formatText(text:string): string {
-        text = text.replace(/</g,'&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-        for (let i = 0; i < this.match.slots.length; i++) {
-            if (this.match.slots[i].user) {
-                text = text.replace(new RegExp('%' + i, 'g'), '<span class="player player' + i + '" style="font-weight: bold; color: ' + TinyColor(this.match.slots[i].color).darken(10).desaturate(10).toString() + ';">' + this.match.slots[i].user.displayName + '</span>');
-            }
-        }
-
-        return text;
     }
 }

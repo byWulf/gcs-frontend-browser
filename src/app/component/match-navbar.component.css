@@ -1,14 +1,21 @@
+#matchNavbar {
+    align-items: center
+}
+
 .navbar-text {
-    padding-left: .5rem;
-    padding-right: .5rem;
+    padding: 0 .5rem;
 }
 
 .matchId {
     font-size: 80%;
+    text-align: center;
 }
 
 .gameName {
     font-size: 1.5rem;
-    line-height: 1.5rem;
     font-weight: bold;
+}
+
+.statusMessage {
+    font-size: 1.2rem;
 }

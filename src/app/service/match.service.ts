@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 
+import * as TinyColor from 'tinycolor2';
+
 import { CommunicationService } from './communication.service';
 
 import { Match } from '../model/match';
@@ -120,5 +122,17 @@ export class MatchService {
                 data: data
             }
         });
+    }
+
+    formatText(match:Match, text:string): string {
+        text = text.replace(/</g,'&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+        for (let i = 0; i < match.slots.length; i++) {
+            if (match.slots[i].user) {
+                text = text.replace(new RegExp('%' + i, 'g'), '<span class="player player' + i + '" style="font-weight: bold; color: ' + TinyColor(match.slots[i].color).darken(10).desaturate(10).toString() + ';">' + match.slots[i].user.displayName + '</span>');
+            }
+        }
+
+        return text;
     }
 }
