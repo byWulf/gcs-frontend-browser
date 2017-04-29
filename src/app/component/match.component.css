@@ -34,3 +34,6 @@
 .chat .notification .text {
     margin-left: 20px;
 }
+.card-group {
+    opacity: 0.9;
+}

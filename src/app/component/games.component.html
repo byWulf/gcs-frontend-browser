@@ -14,7 +14,7 @@
                             {{game.name}}
                             <small class="float-right text-muted version">{{game.version}}</small>
                         </h4>
-                        <p class="card-text">{{game.description}}</p>
+                        <p class="card-text description">{{game.description}}</p>
                         <p class="card-text text-muted" *ngIf="game.minPlayers == game.maxPlayers">Für {{game.minPlayers}} Spieler.</p>
                         <p class="card-text text-muted" *ngIf="game.minPlayers != game.maxPlayers">Für {{game.minPlayers}} bis {{game.maxPlayers}} Spieler.</p>
                     </div>
