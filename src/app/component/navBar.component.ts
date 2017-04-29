@@ -50,10 +50,14 @@ export class NavBarComponent implements OnInit {
 
     logoutUser() {
         this.userService.logout();
+
+        return false;
     }
 
-    switchNavbar(layerIndex: number): void {
+    switchNavbar(layerIndex: number): boolean {
         this.navbarLayer = 'navbar' + layerIndex;
+
+        return false;
     }
 
     navbarEntered(): void {

@@ -3,6 +3,11 @@ nav.navbar {
     padding: 10px 1rem;
 }
 
+.navbar-text {
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+}
+
 .navbarStack {
     width: 100%;
     height: 62px;

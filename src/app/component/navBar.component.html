@@ -19,19 +19,23 @@
                         </li>
                     </ul>
                     <div class="pull-right">
-                        <span class="navbar-text" *ngIf="userStatus != 'loggingOut' && user">
-                            Eingeloggt als <strong>{{user.displayName}}</strong>
-                            <button class="btn btn-default btn-sm" (click)="logoutUser()">Logout</button>
-                        </span>
-                        <span class="navbar-text" *ngIf="userStatus == 'loggingOut'">
-                            Logge aus...
-                        </span>
-                        <div class="navbar-text" *ngIf="!user">
-                            <button class="btn btn-default btn-sm" data-toggle="modal" data-target="#loginModal">Einloggen</button>
-                        </div>
-                        <div class="navbar-text" *ngIf="!user">
-                            <button class="btn btn-default btn-sm" data-toggle="modal" data-target="#registerModal">Registrieren</button>
-                        </div>
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item" *ngIf="userStatus != 'loggingOut' && user">
+                                <div class="navbar-text">Eingeloggt als <strong>{{user.displayName}}</strong></div>
+                            </li>
+                            <li class="nav-item" *ngIf="userStatus != 'loggingOut' && user">
+                                <a href="#" class="nav-link" (click)="logoutUser();">Logout</a>
+                            </li>
+                            <li class="nav-item" *ngIf="userStatus == 'loggingOut'">
+                                <div class="navbar-text">Logge aus...</div>
+                            </li>
+                            <li class="nav-item" *ngIf="!user">
+                                <a href="#" class="nav-link" data-toggle="modal" data-target="#loginModal">Einloggen</a>
+                            </li>
+                            <li class="nav-item" *ngIf="!user">
+                                <a href="#" class="nav-link" data-toggle="modal" data-target="#registerModal">Registrieren</a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
