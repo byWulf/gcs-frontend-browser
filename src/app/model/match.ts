@@ -11,6 +11,7 @@ export class Match {
     slots: Slot[];
     masterUserId: string;
     elements: Object[];
+    progress: number;
     statusMessage: string;
     notifications: Notification[];
 }

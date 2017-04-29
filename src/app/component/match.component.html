@@ -1,6 +1,9 @@
 <div class="sceneContainer" #sceneContainer></div>
 <div *ngIf="match" class="overlay d-flex flex-column pointer-none">
     <div class="pointer-auto">
+        <div class="progressContainer">
+            <div class="progress" [style.width]="match.progress*100+'%'"></div>
+        </div>
         <div class="card-group">
             <ng-container *ngFor="let slot of match.slots; let i = index">
                 <div class="card" *ngIf="match.state == MatchState.open || slot.user !== null">

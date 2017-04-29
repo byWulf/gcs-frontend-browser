@@ -78,7 +78,9 @@ export class MatchComponent implements OnInit, OnDestroy {
             } else if (data.key == 'state') {
                 this.match.state = data.data
             } else if (data.key == 'event') {
-                if (data.data.event == 'statusMessage.changed') {
+                if (data.data.event == 'progress.changed') {
+                    this.match.progress = data.data.progress;
+                } else if (data.data.event == 'statusMessage.changed') {
                     this.match.statusMessage = data.data.text;
                 } else if (data.data.event == 'notification.added') {
                     this.match.notifications.push(data.data);
