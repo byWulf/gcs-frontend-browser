@@ -1,0 +1,11 @@
+.list-group-item {
+    background-color: rgba(255,255,255,0.5);
+}
+
+.list-group-item-action:active {
+    background-color: rgba(236,238,239,0.5);
+}
+
+.list-group-item-action:focus, .list-group-item-action:hover {
+    background-color: rgba(247,247,249,0.5);
+}
