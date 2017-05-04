@@ -16,6 +16,7 @@ import {MatchesComponent} from "./component/matches.component";
 import {UserRegisterComponent} from "./component/user-register.component";
 import {UserLoginComponent} from "./component/user-login.component";
 import {ConnectionStatusComponent} from "./component/connection-status.component";
+import {ImpressumComponent} from "./component/impressum.component";
 
 import {GameService} from "./service/game.service";
 import {MatchService} from "./service/match.service";
@@ -49,7 +50,8 @@ import {SafeHtmlPipe} from "./pipe/safeHtml.pipe";
         SafeHtmlPipe,
         UserRegisterComponent,
         UserLoginComponent,
-        ConnectionStatusComponent
+        ConnectionStatusComponent,
+        ImpressumComponent
     ],
     providers: [
         GameService,
