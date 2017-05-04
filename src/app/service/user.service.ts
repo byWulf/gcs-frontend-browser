@@ -106,6 +106,7 @@ export class UserService {
         this.user.id = data.id;
         this.user.displayName = data.displayName;
         this.user.roles = data.roles;
+        this.user.currentMatch = data.currentMatch;
 
         this.userSubject.next(this.user);
 

@@ -20,6 +20,9 @@
                     </ul>
                     <div class="pull-right">
                         <ul class="navbar-nav mr-auto">
+                            <li class="nav-item" *ngIf="user != null && user.currentMatch != null" routerLinkActive="active">
+                                <a [routerLink]="['/matches', user.currentMatch.id]" class="nav-link" (click)="switchNavbar(1)">Du bist gerade im Spiel <strong>{{user.currentMatch.gameName}}</strong></a>
+                            </li>
                             <li class="nav-item" *ngIf="userStatus != 'loggingOut' && user">
                                 <div class="navbar-text">Eingeloggt als <strong>{{user.displayName}}</strong></div>
                             </li>
