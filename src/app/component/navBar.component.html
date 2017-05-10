@@ -2,7 +2,10 @@
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Navigation einblenden/ausblenden">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <span class="navbar-brand">{{title}}</span>
+    <span class="navbar-brand">
+        <span class="title">{{title}}</span>
+        <span class="version">{{version}}</span>
+    </span>
     <div class="collapse navbar-collapse" id="navbarContent">
         <div [ngClass]="'navbarStack ' + navbarLayer">
             <div class="navbarRows">

@@ -16,12 +16,15 @@ import { User } from '../model/user';
 export class NavBarComponent implements OnInit {
     self = this;
 
-    title = 'Game Central Station';
+    title: string = 'Game Central Station';
+    version: string = '0.0.1-alpha1';
+
     user: User;
     userStatus:string;
 
     navbarLayer: string = 'navbar0';
     gameNavbarEnabled: boolean = false;
+
 
     private leaveTimeout: NodeJS.Timer = null;
 

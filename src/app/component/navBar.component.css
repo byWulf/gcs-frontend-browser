@@ -51,3 +51,16 @@ nav.navbar {
     pointer-events: auto;
     visibility: visible;
 }
+
+.navbar-brand {
+    position: relative;
+}
+
+.navbar-brand .version {
+    color: #aaa;
+    font-size: 10px;
+
+    position: absolute;
+    right: 0;
+    bottom: -6px;
+}
