@@ -19,6 +19,8 @@ export class MatchesComponent implements OnInit, OnDestroy {
     private gameSub: Subscription;
     filterGame: Game;
     matches: Match[] = [];
+    loading: boolean = false;
+    error: string = null;
 
     constructor(
         private matchService: MatchService,
@@ -28,10 +30,17 @@ export class MatchesComponent implements OnInit, OnDestroy {
 }
 
     ngOnInit(): void {
-        this.route.params.switchMap((params: Params) => this.matchService.getMatches(params['key'])).subscribe(data => {
+        this.route.params.switchMap((params: Params) => {
+            this.error = null;
+            this.loading = true;
+
+            return this.matchService.getMatches(params['key']);
+        }).subscribe(data => {
+            this.loading = false;
 
             if (data instanceof EventCallbackError) {
-                console.error('Error while fetching matches list: ', data);
+                this.error = 'Fehler beim Laden der Partien.';
+                console.log('this.matchService.getMatches', data);
             } else {
                 this.matches = data;
             }
@@ -39,9 +48,15 @@ export class MatchesComponent implements OnInit, OnDestroy {
 
         this.gameSub = this.route.params.subscribe(params => {
             if (params['key']) {
+                this.error = null;
+                this.loading = true;
+
                 this.gameService.getGame(params['key']).then(data => {
+                    this.loading = false;
+
                     if (data instanceof EventCallbackError) {
-                        console.error('Error while fetching game: ', data);
+                        this.error = 'Fehler beim Laden des gefilterten Spiels.';
+                        console.log('this.gameService.getGame', data);
                     } else {
                         this.filterGame = data;
                     }

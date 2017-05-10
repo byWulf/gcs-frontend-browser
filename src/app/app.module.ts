@@ -20,6 +20,7 @@ import {ImpressumComponent} from "./component/impressum.component";
 
 import {GameService} from "./service/game.service";
 import {MatchService} from "./service/match.service";
+import {NotifyService} from "./service/notify.service";
 import {CommunicationService} from "./service/communication.service";
 import {UserService} from "./service/user.service";
 import {CookieService} from "angular2-cookie/services/cookies.service";
@@ -56,6 +57,7 @@ import {SafeHtmlPipe} from "./pipe/safeHtml.pipe";
     providers: [
         GameService,
         MatchService,
+        NotifyService,
         CommunicationService,
         UserService,
         CookieService,

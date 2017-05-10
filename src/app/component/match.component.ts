@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
-import {ActivatedRoute, Params} from '@angular/router';
+import {ActivatedRoute, Params, Router} from '@angular/router';
 
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import 'rxjs/add/operator/switchMap';
@@ -14,6 +14,7 @@ import {MatchService} from '../service/match.service';
 import {UserService} from '../service/user.service';
 import {CommunicationService} from '../service/communication.service';
 import {WindowRefService} from "../service/windowRef.service";
+import {NotifyService} from '../service/notify.service';
 
 import {Visualization} from 'gcs-frontend-browser-matchvisualization-3d';
 
@@ -28,6 +29,8 @@ declare const $:JQueryStatic;
 
 export class MatchComponent implements OnInit, OnDestroy {
     @ViewChild('sceneContainer') sceneContainerRef: ElementRef;
+
+    redirectingAfterError: boolean = false;
 
     match: Match = null;
 
@@ -46,7 +49,9 @@ export class MatchComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private userService: UserService,
         private communicationService: CommunicationService,
-        private windowRef: WindowRefService
+        private windowRef: WindowRefService,
+        private router: Router,
+        private notifyService:NotifyService
     ) {}
 
     ngOnInit(): void {
@@ -95,8 +100,13 @@ export class MatchComponent implements OnInit, OnDestroy {
 
     private handleOpenedMatch(match:EventCallbackError|Match): void {
         if (match instanceof EventCallbackError) {
-            console.error('Error while opening match: ', match);
-            this.match = null;
+            if (!this.redirectingAfterError) {
+                this.redirectingAfterError = true;
+
+                this.notifyService.notify('danger', 'Die Partie wurde nicht gefunden.');
+                console.error('this.matchService.openMatch', match);
+                this.router.navigate(['/matches']);
+            }
         } else {
             this.match = match;
 
@@ -169,7 +179,8 @@ export class MatchComponent implements OnInit, OnDestroy {
     join(index:number) {
         this.matchService.joinMatch(this.match, index).then(data => {
             if (data instanceof EventCallbackError) {
-                console.error('Error while joining match: ', data);
+                this.notifyService.notify('danger', 'Beitreten wegen eines unerwarteten Fehlers nicht möglich.');
+                console.error('this.matchService.joinMatch', data);
             }
         });
     }
@@ -177,7 +188,8 @@ export class MatchComponent implements OnInit, OnDestroy {
     leave() {
         this.matchService.leaveMatch(this.match).then(data => {
             if (data instanceof EventCallbackError) {
-                console.error('Error while leaving match: ', data);
+                this.notifyService.notify('danger', 'Verlassen wegen eines unerwarteten Fehlers nicht möglich.');
+                console.error('this.matchService.leaveMatch', data);
             }
         });
     }
@@ -185,7 +197,8 @@ export class MatchComponent implements OnInit, OnDestroy {
     switchSlot(index:number) {
         this.matchService.switchSlot(this.match, index).then(data => {
             if (data instanceof EventCallbackError) {
-                console.error('Error while switching slot: ', data);
+                this.notifyService.notify('danger', 'Platzwechsel wegen eines unerwarteten Fehlers nicht möglich.');
+                console.error('this.matchService.switchSlot', data);
             }
         });
     }

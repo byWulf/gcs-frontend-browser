@@ -4,6 +4,7 @@ import { NavBarComponent } from './navBar.component';
 
 import { UserService } from '../service/user.service';
 import { MatchService } from '../service/match.service';
+import { NotifyService } from '../service/notify.service';
 
 import {Match, MatchState} from '../model/match';
 import { User } from '../model/user';
@@ -24,7 +25,7 @@ export class MatchNavbarComponent implements OnInit {
     MatchState = MatchState;
     currentMatch: Match = null;
 
-    constructor(private userService:UserService, private matchService:MatchService) {}
+    constructor(private userService:UserService, private matchService:MatchService, private notifyService:NotifyService) {}
 
     ngOnInit(): void {
         this.userService.userSubject.subscribe(user => {
@@ -39,7 +40,8 @@ export class MatchNavbarComponent implements OnInit {
     cancelMatch() {
         this.matchService.cancelMatch(this.currentMatch).then(data => {
             if (data instanceof EventCallbackError) {
-                console.error('Error while canceling match: ', data);
+                this.notifyService.notify('danger', 'Die Partie konnte wegen eines unerwarteten Fehlers nicht abgebrochen werden.');
+                console.error('this.matchService.cancelMatch', data);
             }
         });
     }
@@ -47,7 +49,8 @@ export class MatchNavbarComponent implements OnInit {
     startMatch() {
         this.matchService.startMatch(this.currentMatch).then(data => {
             if (data instanceof EventCallbackError) {
-                console.error('Error while starting match: ', data);
+                this.notifyService.notify('danger', 'Die Partie konnte wegen eines unerwarteten Fehlers nicht gestartet werden.');
+                console.error('this.matchService.startMatch', data);
             }
         });
     }

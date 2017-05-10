@@ -17,6 +17,8 @@ import { User } from '../model/user';
 export class GamesComponent implements OnInit, OnDestroy {
     games: Game[] = [];
     user: User;
+    error: string = null;
+    loading: boolean = false;
 
     private userSub:Subscription;
 
@@ -34,9 +36,15 @@ export class GamesComponent implements OnInit, OnDestroy {
     }
 
     getGames(): void {
+        this.error = null;
+        this.loading = true;
+
         this.gameService.getGames().then(data => {
+            this.loading = false;
+
             if (data instanceof EventCallbackError) {
-                console.log("Couldn't load game list", data);
+                this.error = 'Konnte Spielliste nicht laden.';
+                console.log('this.gameService.getGames', data);
             } else {
                 this.games = data;
             }

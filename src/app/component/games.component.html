@@ -6,7 +6,15 @@
     </div>
     <div class="row">
         <div class="col">
-            <div class="card-deck">
+            <div class="alert alert-info" *ngIf="loading">
+                Lade Spielliste...
+            </div>
+
+            <div class="alert alert-danger" *ngIf="!loading && error">
+                {{error}}
+            </div>
+
+            <div class="card-deck" *ngIf="!loading && !error">
                 <div *ngFor="let game of games" class="card" style="width: 10rem;">
                     <img class="card-img-top" src="" alt="">
                     <div class="card-block">

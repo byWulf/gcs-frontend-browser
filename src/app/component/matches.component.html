@@ -9,11 +9,22 @@
     </div>
     <div class="row">
         <div class="col">
-            <div class="list-group">
+            <div class="alert alert-info" *ngIf="loading">
+                Lade Partien...
+            </div>
+
+            <div class="alert alert-danger" *ngIf="!loading && error">
+                {{error}}
+            </div>
+
+            <div class="list-group" *ngIf="!loading && !error && matches.length">
                 <a [routerLink]="['/matches', match.id]" class="list-group-item list-group-item-action" *ngFor="let match of matches">
                     <div class="w-100"><h5>Partie #{{match.id}}</h5></div>
                     <div>{{match.game.name}}</div>
                 </a>
+            </div>
+            <div class="list-group" *ngIf="!loading && !error && !matches.length">
+                <div class="alert alert-info">Keine Partien gefunden.</div>
             </div>
         </div>
     </div>
