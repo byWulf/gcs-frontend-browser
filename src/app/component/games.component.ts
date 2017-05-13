@@ -46,6 +46,7 @@ export class GamesComponent implements OnInit, OnDestroy {
                 this.error = 'Konnte Spielliste nicht laden.';
                 console.log('this.gameService.getGames', data);
             } else {
+                console.log(data);
                 this.games = data;
             }
         });

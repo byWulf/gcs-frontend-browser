@@ -5,4 +5,5 @@ export class Game {
     version: string;
     minPlayers: number;
     maxPlayers: number;
+    contractWithOwner: false;
 }
