@@ -28,7 +28,7 @@
             'rxjs': 'npm:rxjs',
             'angular-in-memory-web-api': 'npm:angular-in-memory-web-api/bundles/in-memory-web-api.umd.js',
             'socket.io-client': 'npm:socket.io-client',
-            'angular2-cookie': 'npm:angular2-cookie',
+            'ngx-cookie': 'npm:ngx-cookie/bundles/ngx-cookie.umd.js',
             'tinycolor2': 'npm:tinycolor2',
             'gcs-frontend-browser-matchvisualization-3d': 'npm:gcs-frontend-browser-matchvisualization-3d',
 

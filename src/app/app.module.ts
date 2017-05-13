@@ -1,5 +1,6 @@
-import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from "@angular/core";
+import {NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import {BrowserModule} from "@angular/platform-browser";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {FormsModule} from "@angular/forms";
 import {HttpModule} from "@angular/http";
 import {CommonModule} from "@angular/common";
@@ -23,20 +24,22 @@ import {MatchService} from "./service/match.service";
 import {NotifyService} from "./service/notify.service";
 import {CommunicationService} from "./service/communication.service";
 import {UserService} from "./service/user.service";
-import {CookieService} from "angular2-cookie/services/cookies.service";
 import {WindowRefService} from "./service/windowRef.service";
 
 import {Angular2AutoScroll} from "angular2-auto-scroll/lib/angular2-auto-scroll.directive";
 import {SafeHtmlPipe} from "./pipe/safeHtml.pipe";
+import { CookieModule } from 'ngx-cookie';
 
 
 @NgModule({
     imports: [
         BrowserModule,
+        BrowserAnimationsModule,
         FormsModule,
         HttpModule,
         AppRoutingModule,
-        CommonModule
+        CommonModule,
+        CookieModule.forRoot()
     ],
     declarations: [
         LayoutComponent,
@@ -60,7 +63,6 @@ import {SafeHtmlPipe} from "./pipe/safeHtml.pipe";
         NotifyService,
         CommunicationService,
         UserService,
-        CookieService,
         WindowRefService
     ],
     bootstrap: [LayoutComponent]

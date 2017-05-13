@@ -3,7 +3,7 @@ import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import {Subscription} from "rxjs/Subscription";
 
 import { CommunicationService } from './communication.service';
-import { CookieService } from 'angular2-cookie/core';
+import { CookieService } from 'ngx-cookie';
 
 import { EventCallbackError } from '../model/eventCallbackError';
 import { User } from '../model/user';

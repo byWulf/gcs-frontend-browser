@@ -1,9 +1,8 @@
-import {Component, OnInit, AfterViewInit} from '@angular/core';
+import {Component, OnInit, AfterViewInit } from '@angular/core';
 
 import { UserService } from '../service/user.service';
-import { CookieService } from 'angular2-cookie/core';
+import { CookieService } from 'ngx-cookie';
 
-import { User } from '../model/user';
 import {EventCallbackError} from "../model/eventCallbackError";
 
 @Component({

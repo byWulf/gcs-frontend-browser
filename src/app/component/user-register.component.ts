@@ -1,10 +1,6 @@
-import {Component, OnInit, AfterViewInit} from '@angular/core';
+import {Component, OnInit } from '@angular/core';
 
 import { UserService } from '../service/user.service';
-import { CookieService } from 'angular2-cookie/core';
-
-import { User } from '../model/user';
-import {EventCallbackError} from "../model/eventCallbackError";
 
 @Component({
     moduleId: module.id,
@@ -23,7 +19,7 @@ export class UserRegisterComponent implements OnInit {
         password2: null
     };
 
-    constructor(private userService:UserService, private cookieService:CookieService) {}
+    constructor(private userService:UserService) {}
 
     ngOnInit(): void {
         this.userService.userSubject.subscribe(user => {

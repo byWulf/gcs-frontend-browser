@@ -1,5 +1,6 @@
-import {Component, OnInit, Input, ViewEncapsulation, trigger, transition, state, style, animate } from '@angular/core';
+import {Component, OnInit, Input, ViewEncapsulation } from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 
 import { UserService } from '../service/user.service';
 
@@ -38,7 +39,7 @@ export class NavBarComponent implements OnInit {
     gameNavbarEnabled: boolean = false;
 
 
-    private leaveTimeout: NodeJS.Timer = null;
+    private leaveTimeout: any = null;
 
     constructor(private userService:UserService, private router: Router) {}
 
