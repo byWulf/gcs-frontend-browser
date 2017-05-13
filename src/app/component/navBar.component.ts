@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewEncapsulation} from '@angular/core';
+import {Component, OnInit, Input, ViewEncapsulation, trigger, transition, state, style, animate } from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
 
 import { UserService } from '../service/user.service';
@@ -10,7 +10,19 @@ import { User } from '../model/user';
     selector: 'my-navbar',
     templateUrl: './navBar.component.html',
     styleUrls: [ './navBar.component.css' ],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    animations: [
+        trigger(
+            'changeLayer', [
+                state('navbar0', style({top: '0px'})),
+                state('navbar1', style({top: '-62px'})),
+                state('navbar2', style({top: '-124px'})),
+                state('navbar3', style({top: '-186px'})),
+                state('navbar4', style({top: '-248px'})),
+                transition('* => *', animate('500ms ease-in-out'))
+            ]
+        )
+    ]
 })
 
 export class NavBarComponent implements OnInit {
