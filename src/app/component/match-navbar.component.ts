@@ -25,6 +25,8 @@ export class MatchNavbarComponent implements OnInit {
     MatchState = MatchState;
     currentMatch: Match = null;
 
+    loadingState: string;
+
     constructor(private userService:UserService, private matchService:MatchService, private notifyService:NotifyService) {}
 
     ngOnInit(): void {
@@ -32,8 +34,10 @@ export class MatchNavbarComponent implements OnInit {
             this.user = user;
         });
 
+        this.loadingState = 'Lade Partiedaten...';
         this.matchService.currentMatchSubject.subscribe(match => {
             this.currentMatch = match;
+            this.loadingState = 'Schließe Partie...';
         });
     }
 
@@ -44,6 +48,8 @@ export class MatchNavbarComponent implements OnInit {
                 console.error('this.matchService.cancelMatch', data);
             }
         });
+
+        return false;
     }
 
     startMatch() {
@@ -53,6 +59,8 @@ export class MatchNavbarComponent implements OnInit {
                 console.error('this.matchService.startMatch', data);
             }
         });
+
+        return false;
     }
 
     isLoggedIn(): boolean {
@@ -61,5 +69,15 @@ export class MatchNavbarComponent implements OnInit {
 
     isMe(userId:string): boolean {
         return this.user && userId === this.user.id;
+    }
+
+    isJoined(): boolean {
+        if (!this.user) return false;
+
+        for (let slot of this.currentMatch.slots) {
+            if (slot.user !== null && slot.user.id === this.user.id) return true;
+        }
+
+        return false;
     }
 }

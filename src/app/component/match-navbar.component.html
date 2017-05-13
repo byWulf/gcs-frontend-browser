@@ -1,4 +1,9 @@
-<div class="navbarRow" id="matchNavbar" *ngIf="currentMatch">
+<div class="navbarRow" *ngIf="!currentMatch">
+    <div class="navbar-text">
+        {{loadingState}}
+    </div>
+</div>
+<div class="navbarRow" *ngIf="currentMatch">
     <div class="navbar-text matchId">
         <div class="text-muted">Partie # {{currentMatch.id}}</div>
         <div>
@@ -13,14 +18,20 @@
         <span *ngIf="currentMatch.state === MatchState.open">Warte auf weitere Spieler oder darauf, dass der Spielleiter das Spiel startet</span>
         <span *ngIf="currentMatch.state === MatchState.running && currentMatch.statusMessage" [innerHTML]="matchService.formatText(currentMatch, currentMatch.statusMessage) | safeHtml"></span>
         <span *ngIf="currentMatch.state === MatchState.canceled">Der Spielleiter hat das Spiel abgebrochen oder das Spiel ist abgestürzt</span>
-        <button type="button" class="btn btn-primary pointer-auto" (click)="startMatch()" *ngIf="currentMatch.state === MatchState.open && isLoggedIn() && isMe(currentMatch.masterUserId)">Starten</button>
-        <button type="button" class="btn btn-danger pointer-auto" (click)="cancelMatch()" *ngIf="currentMatch.state === MatchState.open && isLoggedIn() && isMe(currentMatch.masterUserId)">Abbrechen</button>
-    </div>
-    <div class="navbar-text pull-right">
     </div>
 
     <ul class="navbar-nav mr-auto">
-        <li class="nav-item" routerLinkActive="active">
+        <li class="nav-item" *ngIf="currentMatch.state === MatchState.open && isLoggedIn() && isMe(currentMatch.masterUserId)">
+            <a href="#" class="nav-link" (click)="startMatch()">Partie starten</a>
+        </li>
+        <li class="nav-item" *ngIf="currentMatch.state === MatchState.open && isLoggedIn() && isMe(currentMatch.masterUserId)">
+            <a href="#" class="nav-link" (click)="cancelMatch()">Lobby auflösen</a>
+        </li>
+
+        <li class="nav-item" *ngIf="currentMatch.state === MatchState.finished || currentMatch.state == MatchState.canceled || !isJoined()">
+            <a [routerLink]="['/matches']" class="nav-link">Partie schließen</a>
+        </li>
+        <li class="nav-item" *ngIf="isJoined() && currentMatch.state !== MatchState.finished && currentMatch.state !== MatchState.canceled">
             <a href="#" class="nav-link" (click)="parentComponent.switchNavbar(0)">Zum Hauptmenü</a>
         </li>
     </ul>
