@@ -10,6 +10,7 @@ import {LayoutComponent} from "./component/layout.component";
 import {NavBarComponent} from "./component/navBar.component";
 import {DashboardComponent} from "./component/dashboard.component";
 import {GamesComponent} from "./component/games.component";
+import {GameCreateComponent} from "./component/game-create.component";
 import {MatchCreateComponent} from "./component/match-create.component";
 import {MatchComponent} from "./component/match.component";
 import {MatchNavbarComponent} from "./component/match-navbar.component";
@@ -46,6 +47,7 @@ import { CookieModule } from 'ngx-cookie';
         NavBarComponent,
         DashboardComponent,
         GamesComponent,
+        GameCreateComponent,
         MatchCreateComponent,
         MatchComponent,
         MatchNavbarComponent,

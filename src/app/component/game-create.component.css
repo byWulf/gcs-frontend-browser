@@ -1,0 +1,71 @@
+.sceneContainer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+.overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.treeContainer {
+    margin-top: 50px;
+    width: 300px;
+}
+
+.treeContainer.wideTree {
+    width: 450px;
+}
+
+.treeContainer .nav {
+    margin-top: -42px;
+    background-color: rgba(222, 222, 222, 0.8);
+    border-radius: 5px 5px 0 0;
+}
+
+.treeContainer .tab-content {
+    background-color: #f7f7f7;
+    padding: 10px;
+    height: 100%;
+}
+
+.treeContainer .tab-content .tab-pane {
+    height: 100%;
+}
+
+.treeContainer .tab-content .treeList {
+    overflow-y: auto;
+    height: 100%;
+    padding: 10px;
+    margin: 10px -10px -10px -10px;
+}
+
+.attribute-label {
+    width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 0;
+}
+
+.attribute-input {
+    width: 50%;
+    padding-left: 10px;
+    position: relative;
+}
+
+.attribute-input .inputOverlay {
+    position: absolute;
+    right: 11px;
+    top: 6px;
+}
+.attribute-input .hasOverlay {
+    padding-right: 38px;
+}

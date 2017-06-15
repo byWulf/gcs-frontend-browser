@@ -38,4 +38,10 @@
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col mg-top-lg">
+            <div class="btn btn-primary disabled" *ngIf="!user">Eigenes Spiel erstellen</div>
+            <a [routerLink]="['/games/create']" class="btn btn-primary" *ngIf="user">Eigenes Spiel erstellen</a>
+        </div>
+    </div>
 </div>

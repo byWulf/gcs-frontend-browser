@@ -1,0 +1,75 @@
+<div class="sceneContainer" #sceneContainer></div>
+<div class="overlay d-flex flex-column pointer-none">
+    <div class="flex-grow-1 d-flex">
+        <div class="treeContainer pointer-auto">
+            <ul class="nav nav-tabs nav-fill" role="tablist">
+                <li class="nav-item"><a class="nav-link active"  data-toggle="tab" href="#game-create-elements">Elemente</a></li>
+                <li class="nav-item"><a class="nav-link"  data-toggle="tab" href="#game-create-sequence">Ablauf</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active d-flex flex-column" id="game-create-elements" role="tabpanel">
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Element hinzufügen</button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a *ngFor="let type of elementTypes" class="dropdown-item" href="#" (click)="addElement(type.key)">{{type.label}}</a>
+                        </div>
+                    </div>
+                    <div class="treeList flex-grow-1">
+                        <div class="list-group">
+                          <a href="#" *ngFor="let element of elements; let i = index" class="list-group-item" [ngClass]="{'active': currentElementIndex == i}" (click)="selectElement(i)">{{element.id}}</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="game-create-sequence" role="tabpanel">
+
+                </div>
+            </div>
+        </div>
+        <div class="flex-grow-1"></div>
+        <div class="treeContainer wideTree pointer-auto" *ngIf="currentElementIndex !== null">
+            <ul class="nav nav-tabs nav-fill" role="tablist">
+                <li class="nav-item"><a class="nav-link active"  data-toggle="tab" href="#game-create-attributes">{{elements[currentElementIndex].id}}</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active d-flex flex-column" id="game-create-attributes" role="tabpanel">
+                    <div class="treeList flex-grow-1">
+                        <ul class="list-group">
+                            <ng-container *ngFor="let option of getElementDefinition(elements[currentElementIndex].type).options">
+                                <li class="list-group-item" *ngIf="option.type !== 'hidden'">
+                                    <label class="attribute-label" [for]="'game-create-attributes-' + option.key">{{option.label}}</label>
+                                    <div class="attribute-input">
+                                        <ng-container *ngIf="option.type === 'length'">
+                                            <input [id]="'game-create-attributes-' + option.key" class="form-control hasOverlay" type="number" step="0.1" min="0.1" max="200" [value]="elements[currentElementIndex].element[option.key]" (input)="updateAttribute(option.key, $event.target.value)">
+                                            <span class="inputOverlay">cm</span>
+                                        </ng-container>
+                                        <ng-container *ngIf="option.type === 'select'" (change)="updateAttribute(option.key, $event.target.value)">
+                                            <select [id]="'game-create-attributes-' + option.key" class="form-control">
+                                                <option [value]="value.value" *ngFor="let value of option.values" [ngClass]="{'selected': elements[currentElementIndex].element[option.key] == option.values}">{{value.label}}</option>
+                                            </select>
+                                        </ng-container>
+                                        <ng-container *ngIf="option.type === 'rotation'">
+                                            <input [id]="'game-create-attributes-' + option.key" class="form-control hasOverlay" type="number" step="1" min="0" max="360" [value]="elements[currentElementIndex].element[option.key]" (input)="updateAttribute(option.key, $event.target.value)">
+                                            <span class="inputOverlay">°</span>
+                                        </ng-container>
+                                        <ng-container *ngIf="option.type === 'image'">
+                                            <input [id]="'game-create-attributes-' + option.key" class="form-control" type="file" [value]="elements[currentElementIndex].element[option.key]" (input)="updateAttribute(option.key, $event.target.value)">
+                                        </ng-container>
+                                        <ng-container *ngIf="option.type === 'color'">
+
+                                        </ng-container>
+                                        <ng-container *ngIf="option.type === 'model'">
+                                            <input [id]="'game-create-attributes-' + option.key" class="form-control" type="file" [value]="elements[currentElementIndex].element[option.key]" (input)="updateAttribute(option.key, $event.target.value)">
+                                        </ng-container>
+                                        <ng-container *ngIf="option.type === 'text'">
+                                            <input [id]="'game-create-attributes-' + option.key" class="form-control" type="text" [value]="elements[currentElementIndex].element[option.key]" (input)="updateAttribute(option.key, $event.target.value)">
+                                        </ng-container>
+                                    </div>
+                                </li>
+                            </ng-container>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
