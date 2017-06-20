@@ -434,15 +434,49 @@ export class GameCreateComponent {
 
         return null;
     }
+    getOptionDefinition(typeKey, optionKey): any {
+        let definition = this.getElementDefinition(typeKey);
+
+        for (let i = 0; i < definition.options.length; i++) {
+            if (definition.options[i].key == optionKey) {
+                return definition.options[i];
+            }
+        }
+
+        return null;
+    }
 
     updateAttribute(key, value): boolean {
         if (this.currentElementIndex === null) return false;
 
-        this.elements[this.currentElementIndex].element[key] = value;
+        let currentElement = this.elements[this.currentElementIndex];
+        let optionDefinition = this.getOptionDefinition(currentElement.type, key);
 
-        this.visualization.handleGameEvent('element.removed', this.elements[this.currentElementIndex]);
-        this.visualization.handleGameEvent('element.added', this.elements[this.currentElementIndex]);
+        if (['rotation', 'length'].indexOf(optionDefinition.type) > -1) {
+            currentElement.element[key] = parseFloat(value);
+        } else if (['image'].indexOf(optionDefinition.type) > -1) {
+            currentElement.element[key] = document.createElement('img');
 
-        console.log(this.elements[this.currentElementIndex])
+            let reader = new FileReader();
+            reader.onload = function(){
+                currentElement.element[key].src = reader.result;
+            };
+            reader.readAsDataURL(document.getElementById('game-create-attributes-' + key)['files'][0]);
+        } else if (['model'].indexOf(optionDefinition.type) > -1) {
+            currentElement.element[key] = {type: 'model', content: null, onload: null};
+            let reader = new FileReader();
+            reader.onload = function(){
+                currentElement.element[key].content = reader.result;
+                if (typeof currentElement.element[key].onload == 'function') {
+                    currentElement.element[key].onload();
+                }
+            };
+            reader.readAsText(document.getElementById('game-create-attributes-' + key)['files'][0]);
+        } else {
+            currentElement.element[key] = value;
+        }
+
+        this.visualization.handleGameEvent('element.removed', currentElement);
+        this.visualization.handleGameEvent('element.added', currentElement);
     }
 }
