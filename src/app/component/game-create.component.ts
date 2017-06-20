@@ -65,7 +65,9 @@ export class GameCreateComponent {
                     type: 'hidden',
                     defaultValue: true
                 }
-            ]
+            ],
+            onShow: (element) => { this.visualization.handleGameEvent('button.permissionChanged', {id: element.id, canBeClicked: true}) },
+            onHide: (element) => { this.visualization.handleGameEvent('button.permissionChanged', {id: element.id, canBeClicked: false}) }
         },{
             key: 'card_v1',
             label: 'Karte',
@@ -440,9 +442,19 @@ export class GameCreateComponent {
             if (i == index && this.elements[i].parent.id != 'tableContainer') {
                 this.elements[i].parent = {id: 'tableContainer'};
                 this.visualization.handleGameEvent('element.moved', this.elements[i]);
+
+                let definition = this.getElementDefinition(this.elements[i].type);
+                if (typeof definition.onShow == 'function') {
+                    definition.onShow(this.elements[i]);
+                }
             } else if (i != index && this.elements[i].parent.id != 'packageContainer') {
                 this.elements[i].parent = {id: 'packageContainer'};
                 this.visualization.handleGameEvent('element.moved', this.elements[i]);
+
+                let definition = this.getElementDefinition(this.elements[i].type);
+                if (typeof definition.onHide == 'function') {
+                    definition.onHide(this.elements[i]);
+                }
             }
         }
 
