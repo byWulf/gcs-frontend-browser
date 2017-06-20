@@ -1,4 +1,4 @@
-import {Component, ElementRef, ViewChild} from '@angular/core';
+import {ApplicationRef, Component, ElementRef, ViewChild} from '@angular/core';
 import {Visualization} from 'gcs-frontend-browser-matchvisualization-3d';
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Router} from "@angular/router";
@@ -16,6 +16,8 @@ export class GameCreateComponent {
     visualization:Visualization;
     visualizationReady:BehaviorSubject<boolean> = new BehaviorSubject(false);
 
+    bulkCreateKey:string = null;
+    bulkCreateCount:number = 0;
     elementTypes = [{
             key: 'autoResizeContainer_v1',
             label: 'Autoresize-Container',
@@ -29,6 +31,7 @@ export class GameCreateComponent {
         },{
             key: 'board_v1',
             label: 'Spielbrett',
+            labelPlural: 'Spielbretter',
             options: [
                 {
                     key: 'width',
@@ -50,6 +53,7 @@ export class GameCreateComponent {
         },{
             key: 'button_v1',
             label: 'Button',
+            labelPlural: 'Button',
             options: [
                 {
                     key: 'label',
@@ -65,6 +69,7 @@ export class GameCreateComponent {
         },{
             key: 'card_v1',
             label: 'Karte',
+            labelPlural: 'Karten',
             options: [
                 {
                     key: 'frontImage',
@@ -127,10 +132,15 @@ export class GameCreateComponent {
                     type: 'hidden',
                     defaultValue: []
                 }
-            ]
+            ],
+            bulk: {
+                type: 'file',
+                key: 'frontImage'
+            }
         },{
             key: 'cardContainer_v1',
             label: 'Kartenstapel (Container für Karten)',
+            labelPlural: 'Kartenstapel (Container für Karten)',
             options: [
                 {
                     key: 'cardWidth',
@@ -184,6 +194,7 @@ export class GameCreateComponent {
         },{
             key: 'dice_v1',
             label: 'Würfel',
+            labelPlural: 'Würfel',
             options: [
                 {
                     key: 'value',
@@ -217,10 +228,14 @@ export class GameCreateComponent {
                     ],
                     defaultValue: 6
                 }
-            ]
+            ],
+            bulk: {
+                type: 'count'
+            }
         },{
             key: 'piece_v1',
             label: 'Spielfigur',
+            labelPlural: 'Spielfiguren',
             options: [
                 {
                     key: 'model',
@@ -237,10 +252,14 @@ export class GameCreateComponent {
                     type: 'hidden',
                     defaultValue: []
                 }
-            ]
+            ],
+            bulk: {
+                type: 'count'
+            }
         },{
             key: 'pieceContainer_v1',
             label: 'Spielfigur-Positionen',
+            labelPlural: 'Spielfigur-Positionen',
             options: [
                 {
                     key: 'stackElementRadius',
@@ -257,6 +276,7 @@ export class GameCreateComponent {
         },{
             key: 'tile_v1',
             label: 'Plättchen',
+            labelPlural: 'Plättchen',
             options: [
                 {
                     key: 'frontImage',
@@ -322,10 +342,15 @@ export class GameCreateComponent {
                     type: 'hidden',
                     defaultValue: []
                 }
-            ]
+            ],
+            bulk: {
+                type: 'file',
+                key: 'frontImage'
+            }
         },{
             key: 'tileContainer_v1',
             label: 'Plättchenanordnung (Container für Plättchen)',
+            labelPlural: 'Plättchenanordnungen (Container für Plättchen)',
             options: [
                 {
                     key: 'stackElementRadius',
@@ -353,7 +378,8 @@ export class GameCreateComponent {
 
     constructor(
         private windowRef: WindowRefService,
-        private router: Router
+        private router: Router,
+        private applicationRef:ApplicationRef
     ) {}
 
     ngOnInit(): void {
@@ -375,7 +401,7 @@ export class GameCreateComponent {
         this.visualizationReady.next(true);
     }
 
-    addElement(typeKey): boolean {
+    addElement(typeKey, options?): boolean {
         let definition = this.getElementDefinition(typeKey);
 
         let count = 1;
@@ -395,7 +421,7 @@ export class GameCreateComponent {
         };
 
         for (let option of definition.options) {
-            element.element[option.key] = option.defaultValue || null;
+            element.element[option.key] = options ? options[option.key] : (option.defaultValue || null);
         }
 
         this.elements.push(element);
@@ -446,37 +472,95 @@ export class GameCreateComponent {
         return null;
     }
 
+    transformAttributeValue(typeKey:string, optionKey:string, inputElement:HTMLElement, fileIndex:number = 0): any {
+        let optionDefinition = this.getOptionDefinition(typeKey, optionKey);
+
+        if (['rotation', 'length'].indexOf(optionDefinition.type) > -1) {
+            return parseFloat(inputElement['value']);
+        }
+
+        if (['image'].indexOf(optionDefinition.type) > -1) {
+            let imgElement = document.createElement('img');
+
+            if (typeof inputElement['files'][fileIndex] != 'undefined') {
+                let reader = new FileReader();
+                reader.onload = function () {
+                    imgElement.src = reader.result;
+                };
+                reader.readAsDataURL(inputElement['files'][fileIndex]);
+            }
+
+            return imgElement;
+        }
+
+        if (['model'].indexOf(optionDefinition.type) > -1) {
+            let modelObject = {type: 'model', content: null, onload: null};
+
+            if (typeof inputElement['files'][fileIndex] != 'undefined') {
+                let reader = new FileReader();
+                reader.onload = function () {
+                    modelObject.content = reader.result;
+                    if (typeof modelObject.onload == 'function') {
+                        modelObject.onload();
+                    }
+                };
+                reader.readAsText(inputElement['files'][fileIndex]);
+            }
+
+            return modelObject;
+        }
+
+        return inputElement['value'];
+    }
+
     updateAttribute(key, value): boolean {
         if (this.currentElementIndex === null) return false;
 
         let currentElement = this.elements[this.currentElementIndex];
-        let optionDefinition = this.getOptionDefinition(currentElement.type, key);
 
-        if (['rotation', 'length'].indexOf(optionDefinition.type) > -1) {
-            currentElement.element[key] = parseFloat(value);
-        } else if (['image'].indexOf(optionDefinition.type) > -1) {
-            currentElement.element[key] = document.createElement('img');
-
-            let reader = new FileReader();
-            reader.onload = function(){
-                currentElement.element[key].src = reader.result;
-            };
-            reader.readAsDataURL(document.getElementById('game-create-attributes-' + key)['files'][0]);
-        } else if (['model'].indexOf(optionDefinition.type) > -1) {
-            currentElement.element[key] = {type: 'model', content: null, onload: null};
-            let reader = new FileReader();
-            reader.onload = function(){
-                currentElement.element[key].content = reader.result;
-                if (typeof currentElement.element[key].onload == 'function') {
-                    currentElement.element[key].onload();
-                }
-            };
-            reader.readAsText(document.getElementById('game-create-attributes-' + key)['files'][0]);
-        } else {
-            currentElement.element[key] = value;
-        }
+        currentElement.element[key] = this.transformAttributeValue(currentElement.type, key, document.getElementById('game-create-attributes-' + key));
 
         this.visualization.handleGameEvent('element.removed', currentElement);
         this.visualization.handleGameEvent('element.added', currentElement);
+    }
+
+    startBulkCreate(typeKey): boolean {
+        this.bulkCreateKey = null;
+        this.applicationRef.tick();
+
+        this.bulkCreateKey = typeKey;
+        this.bulkCreateCount = 0;
+
+        $('#bulkCreateModal')['modal']('show');
+
+        return false;
+    }
+
+    bulkCreate(): boolean {
+        let definition = this.getElementDefinition(this.bulkCreateKey);
+
+
+        for (let i = 0; i < this.bulkCreateCount; i++) {
+            let options = {};
+            for (let option of definition.options) {
+                if (definition.bulk.type == 'file' && definition.bulk.key == option.key) {
+                    options[option.key] = this.transformAttributeValue(this.bulkCreateKey, option.key, document.getElementById('game-create-bulkcreate-' + option.key), i);
+                } else if (option.type == 'hidden') {
+                    options[option.key] = option.defaultValue;
+                } else {
+                    options[option.key] = this.transformAttributeValue(this.bulkCreateKey, option.key, document.getElementById('game-create-bulkcreate-' + option.key));
+                }
+            }
+
+            this.addElement(this.bulkCreateKey, options);
+        }
+
+        $('#bulkCreateModal')['modal']('hide');
+
+        return false;
+    }
+
+    setBulkCountByFileInput(): void {
+        this.bulkCreateCount = document.getElementById('game-create-bulkcreate-' + this.getElementDefinition(this.bulkCreateKey).bulk.key)['files'].length;
     }
 }

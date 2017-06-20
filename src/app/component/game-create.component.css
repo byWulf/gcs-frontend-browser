@@ -36,7 +36,7 @@
     height: 100%;
 }
 
-.treeContainer .tab-content .tab-pane {
+.full-height {
     height: 100%;
 }
 
@@ -61,11 +61,17 @@
     position: relative;
 }
 
-.attribute-input .inputOverlay {
+.attribute-input .inputOverlay,
+.modalAttributeInput .inputOverlay {
     position: absolute;
     right: 11px;
     top: 6px;
 }
-.attribute-input .hasOverlay {
+.attribute-input .hasOverlay,
+.modalAttributeInput .hasOverlay {
     padding-right: 38px;
+}
+
+.modalAttributeInput {
+    position: relative;
 }
