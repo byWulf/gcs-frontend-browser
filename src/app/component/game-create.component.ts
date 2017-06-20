@@ -97,25 +97,25 @@ export class GameCreateComponent {
                     key: 'width',
                     label: 'Breite',
                     type: 'length',
-                    defaultValue: 5
+                    defaultValue: 6
                 },
                 {
                     key: 'height',
                     label: 'Höhe',
                     type: 'length',
-                    defaultValue: 8
+                    defaultValue: 9
                 },
                 {
                     key: 'depth',
                     label: 'Dicke',
                     type: 'length',
-                    defaultValue: 0.05
+                    defaultValue: 0.03
                 },
                 {
                     key: 'cornerRadius',
                     label: 'Radius der Eckenabrundung',
                     type: 'length',
-                    defaultValue: 1
+                    defaultValue: 0.5
                 },
                 {
                     key: 'canBeMovedTo',
@@ -136,25 +136,25 @@ export class GameCreateComponent {
                     key: 'cardWidth',
                     label: 'Breite der aufnehmenden Karten',
                     type: 'length',
-                    defaultValue: 5
+                    defaultValue: 6
                 },
                 {
                     key: 'cardHeight',
                     label: 'Höhe der aufnehmenden Karten',
                     type: 'length',
-                    defaultValue: 8
+                    defaultValue: 9
                 },
                 {
                     key: 'cardDepth',
                     label: 'Dicke der aufnehmenden Karten',
                     type: 'length',
-                    defaultValue: 0.05
+                    defaultValue: 0.03
                 },
                 {
                     key: 'cardCornerRadius',
                     label: 'Radius der Eckenabrundung der aufnehmenden Karten',
                     type: 'length',
-                    defaultValue: 1
+                    defaultValue: 0.5
                 },
                 {
                     key: 'spacing',
