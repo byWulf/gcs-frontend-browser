@@ -29,6 +29,9 @@ body {
 .flex-grow-1 {
     flex-grow: 1;
 }
+.flex-shrink-0 {
+    flex-shrink: 0;
+}
 
 .pointer-none {
     pointer-events: none;
@@ -39,4 +42,8 @@ body {
 
 .mg-top-lg {
     margin-top: 20px;
+}
+
+.mg-top-sm {
+    margin-top: 5px;
 }

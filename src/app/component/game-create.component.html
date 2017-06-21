@@ -74,6 +74,9 @@
                                         <ng-container *ngIf="option.type === 'text'">
                                             <input [id]="'game-create-attributes-' + option.key" class="form-control" type="text" [value]="elements[currentElementIndex].element[option.key]" (input)="updateAttribute(option.key, $event.target.value)">
                                         </ng-container>
+                                        <ng-container *ngIf="option.type === 'pieceContainer_v1_positions'">
+                                            <button class="btn btn-secondary btn-block" (click)="startPositionEditor()">Zum Positionseditor</button>
+                                        </ng-container>
                                     </div>
                                 </li>
                             </ng-container>
@@ -156,6 +159,103 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="positionEditorContainer d-flex flex-column" *ngIf="positionEditorActive">
+    <div class="row justify-content-center flex-shrink-0">
+        <div class="col col-auto alert alert-white mg-top-lg">
+            <div class="row">
+                <div class="col col-auto">
+                    Vorlagenelement auswählen, auf dem später dieser PieceContainer liegen wird:
+                </div>
+                <div class="col col-auto">
+                    <select class="form-control" (input)="positionEditorTemplateElementId = $event.target.value">
+                        <option value="">Tisch/Beliebig</option>
+                        <ng-container *ngFor="let element of elements; let i = index">
+                            <option *ngIf="i != currentElementIndex && ['tile_v1', 'card_v1', 'board_v1'].indexOf(element.type) > -1" [value]="element.id">{{element.id}}</option>
+                        </ng-container>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-primary" (click)="savePositionEditor()">Speichern</button>
+                    <button class="btn btn-secondary" (click)="cancelPositionEditor()">Abbrechen</button>
+
+                    <div class="btn-group btn-group-sm pull-right mg-top-sm" data-toggle="buttons">
+                        <label class="btn btn-secondary active" (click)="positionEditorTool = 'createPoint'">
+                            <input type="radio" autocomplete="off" checked> + Punkt
+                        </label>
+                        <label class="btn btn-secondary" (click)="positionEditorTool = 'deletePoint'">
+                            <input type="radio" autocomplete="off"> - Punkt
+                        </label>
+                        <label class="btn btn-secondary" (click)="positionEditorTool = 'createJoint'; positionStartJointIndex = null">
+                            <input type="radio" autocomplete="off"> + Verbindung
+                        </label>
+                        <label class="btn btn-secondary" (click)="positionEditorTool = 'deleteJoint'">
+                            <input type="radio" autocomplete="off"> - Verbindung
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="row" *ngIf="positionEditorTool == 'createJoint'">
+                <div class="col">
+                    <div class="btn-group btn-group-sm pull-right">
+                        <button class="btn btn-secondary" (click)="selectAllSlotIndexes()">Alle</button>
+                        <button class="btn btn-secondary" (click)="deselectAllSlotIndexes()">Keine</button>
+                    </div>
+                    <div class="btn-group btn-group-sm pull-right" data-toggle="buttons">
+                        <label class="btn btn-secondary active" *ngFor="let slotIndex of templatePlayerSlotIndexes" [style]="'box-shadow: 0 0 5px ' + templatePlayerColors[slotIndex] + ' inset' | safeStyle">
+                            <input type="checkbox" [id]="'templatePlayerSlotIndex' + slotIndex" autocomplete="off" checked> {{slotIndex}}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="flex-grow-1 overflow-auto">
+        <div [class]="'positionTemplateContainer ' + positionEditorTool" #templateContainer [style]="'width: ' + (getWidthOfTemplate() + templatePadding * 2) + 'px; height: ' + (getHeightOfTemplate() + templatePadding * 2) + 'px; padding-left: ' + (getWidthOfTemplate() / 2 + templatePadding) + 'px; padding-top: ' + (getHeightOfTemplate() / 2 + templatePadding) + 'px;' | safeStyle">
+            <div class="positionTemplateBackground pointer-none" [style]="'width: ' + getWidthOfTemplate() + 'px; height: ' + getHeightOfTemplate() + 'px; left: ' + templatePadding + 'px; top: ' + templatePadding + 'px; background-image: url(' + getImageOfTemplate() + '); background-size: ' + getWidthOfTemplate() + 'px ' + getHeightOfTemplate() + 'px;' | safeStyle"></div>
+            <svg class="arrowContainer" [attr.width]="getWidthOfTemplate() + templatePadding * 2" [attr.height]="getHeightOfTemplate() + templatePadding * 2">
+                <defs>
+                  <marker id='arrowOuter' orient="auto"
+                    [attr.markerWidth]='20' [attr.markerHeight]='20'
+                    [attr.refX]='elements[currentElementIndex].element.stackElementRadius * templateFactor / 4 + 7' [attr.refY]='4.5'>
+                    <!-- triangle pointing right (+x) -->
+                      <path d='M0,0 L0,9 L9,4.5 z' fill="black"></path>
+                  </marker>
+                  <marker id='arrowInner' orient="auto"
+                    [attr.markerWidth]='10' [attr.markerHeight]='10'
+                    [attr.refX]='elements[currentElementIndex].element.stackElementRadius * templateFactor / 4 + 6' [attr.refY]='3'>
+                    <!-- triangle pointing right (+x) -->
+                      <path d='M0,0 L0,6 L6,3 z' fill="white"></path>
+                  </marker>
+                </defs>
+                <ng-container *ngFor="let arrow of positionArrows">
+                    <line [attr.x1]="arrow.from.x * templateFactor + getWidthOfTemplate() / 2 + templatePadding" [attr.y1]="arrow.from.y * templateFactor + getHeightOfTemplate() / 2 + templatePadding" [attr.x2]="arrow.to.x * templateFactor + getWidthOfTemplate() / 2 + templatePadding" [attr.y2]="arrow.to.y * templateFactor + getHeightOfTemplate() / 2 + templatePadding" stroke="black" stroke-width="6"></line>
+                    <line marker-end="url(#arrowOuter)" [attr.x1]="arrow.from.x * templateFactor + getWidthOfTemplate() / 2 + templatePadding" [attr.y1]="arrow.from.y * templateFactor + getHeightOfTemplate() / 2 + templatePadding" [attr.x2]="arrow.to.x * templateFactor + getWidthOfTemplate() / 2 + templatePadding" [attr.y2]="arrow.to.y * templateFactor + getHeightOfTemplate() / 2 + templatePadding" stroke-width="2"></line>
+                </ng-container>
+                <ng-container *ngFor="let arrow of positionArrows">
+                    <ng-container *ngIf="arrow.allowedSlotIndexes.length == templatePlayerCount">
+                        <line [attr.x1]="arrow.from.x * templateFactor + getWidthOfTemplate() / 2 + templatePadding" [attr.y1]="arrow.from.y * templateFactor + getHeightOfTemplate() / 2 + templatePadding" [attr.x2]="arrow.to.x * templateFactor + getWidthOfTemplate() / 2 + templatePadding" [attr.y2]="arrow.to.y * templateFactor + getHeightOfTemplate() / 2 + templatePadding" [attr.stroke]="'white'" stroke-width="2"></line>
+                    </ng-container>
+                    <ng-container *ngIf="arrow.allowedSlotIndexes.length < templatePlayerCount">
+                        <ng-container *ngFor="let slotIndex of arrow.allowedSlotIndexes; let i = index">
+                            <line [attr.x1]="arrow.from.x * templateFactor + getWidthOfTemplate() / 2 + templatePadding" [attr.y1]="arrow.from.y * templateFactor + getHeightOfTemplate() / 2 + templatePadding" [attr.x2]="arrow.to.x * templateFactor + getWidthOfTemplate() / 2 + templatePadding" [attr.y2]="arrow.to.y * templateFactor + getHeightOfTemplate() / 2 + templatePadding" [attr.stroke]="templatePlayerColors[slotIndex]" [attr.stroke-dasharray]="'0,' + (i * 10) + ',10,' + ((arrow.allowedSlotIndexes.length - 1 - i) * 10)" stroke-width="2"></line>
+                        </ng-container>
+                    </ng-container>
+                    <line marker-end="url(#arrowInner)" [attr.x1]="arrow.from.x * templateFactor + getWidthOfTemplate() / 2 + templatePadding" [attr.y1]="arrow.from.y * templateFactor + getHeightOfTemplate() / 2 + templatePadding" [attr.x2]="arrow.to.x * templateFactor + getWidthOfTemplate() / 2 + templatePadding" [attr.y2]="arrow.to.y * templateFactor + getHeightOfTemplate() / 2 + templatePadding" stroke="transparent" stroke-width="2"></line>
+
+                    <line [attr.x1]="arrow.from.x * templateFactor + getWidthOfTemplate() / 2 + templatePadding" [attr.y1]="arrow.from.y * templateFactor + getHeightOfTemplate() / 2 + templatePadding" [attr.x2]="arrow.to.x * templateFactor + getWidthOfTemplate() / 2 + templatePadding" [attr.y2]="arrow.to.y * templateFactor + getHeightOfTemplate() / 2 + templatePadding" stroke="transparent" stroke-width="20" (click)="clickJoint(arrow)">
+                        <title *ngIf="arrow.allowedSlotIndexes.length == templatePlayerCount">Für alle Spieler</title>
+                        <title *ngIf="arrow.allowedSlotIndexes.length < templatePlayerCount">Nur für Spieler {{arrow.allowedSlotIndexes.join(', ')}}</title>
+                    </line>
+                </ng-container>
+            </svg>
+            <div class="point pointer-none" [ngClass]="{'pointer-none': positionEditorTool == 'createPoint', 'selected': positionEditorTool == 'createJoint' && i == positionStartJointIndex}" *ngFor="let position of positionEditorPositions; let i = index" (click)="clickPoint(i)" [style]="'left: ' + (position.x * templateFactor + getWidthOfTemplate() / 2 + templatePadding - elements[currentElementIndex].element.stackElementRadius / 2 * templateFactor) + 'px; top: ' + (position.y * templateFactor + getHeightOfTemplate() / 2 + templatePadding - elements[currentElementIndex].element.stackElementRadius / 2 * templateFactor) + 'px; width: ' + (elements[currentElementIndex].element.stackElementRadius * templateFactor) + 'px; height: ' + (elements[currentElementIndex].element.stackElementRadius * templateFactor) + 'px; border-radius: ' + (elements[currentElementIndex].element.stackElementRadius * templateFactor / 2) + 'px;' | safeStyle"></div>
+            <div class="point preview pointer-none" *ngIf="positionEditorTool == 'createPoint'" [style]="'width: ' + (elements[currentElementIndex].element.stackElementRadius * templateFactor) + 'px; height: ' + (elements[currentElementIndex].element.stackElementRadius * templateFactor) + 'px; border-radius: ' + (elements[currentElementIndex].element.stackElementRadius * templateFactor / 2) + 'px;' | safeStyle"></div>
         </div>
     </div>
 </div>

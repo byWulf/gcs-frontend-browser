@@ -16,8 +16,6 @@ export class GameCreateComponent {
     visualization:Visualization;
     visualizationReady:BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-    bulkCreateKey:string = null;
-    bulkCreateCount:number = 0;
     elementTypes = [{
             key: 'autoResizeContainer_v1',
             label: 'Autoresize-Container',
@@ -271,7 +269,8 @@ export class GameCreateComponent {
                 },
                 {
                     key: 'positions',
-                    type: 'hidden',
+                    label: 'Positionen',
+                    type: 'pieceContainer_v1_positions',
                     defaultValue: []
                 }
             ]
@@ -423,7 +422,15 @@ export class GameCreateComponent {
         };
 
         for (let option of definition.options) {
-            element.element[option.key] = options ? options[option.key] : (option.defaultValue || null);
+            let value = option.defaultValue || null;
+            if (options) {
+                value = options[option.key];
+            }
+
+            if (value instanceof Array) {
+                value = value.slice();
+            }
+            element.element[option.key] = value;
         }
 
         this.elements.push(element);
@@ -536,6 +543,22 @@ export class GameCreateComponent {
         this.visualization.handleGameEvent('element.added', currentElement);
     }
 
+    getElementById(id) {
+        for (let element of this.elements) {
+            if (element.id == id) {
+                return element;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Bulk creation
+     */
+    bulkCreateKey:string = null;
+    bulkCreateCount:number = 0;
+
     startBulkCreate(typeKey): boolean {
         this.bulkCreateKey = null;
         this.applicationRef.tick();
@@ -574,5 +597,245 @@ export class GameCreateComponent {
 
     setBulkCountByFileInput(): void {
         this.bulkCreateCount = document.getElementById('game-create-bulkcreate-' + this.getElementDefinition(this.bulkCreateKey).bulk.key)['files'].length;
+    }
+
+    /**
+     * PieceContainer Position-Editor
+     */
+    @ViewChild('templateContainer') templateContainerRef: ElementRef;
+    templateFactor = 25;
+    templatePadding = 100;
+    templatePlayerCount = 10;
+    templatePlayerSlotIndexes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    templatePlayerColors = ['#f00','#ff0','#0a0','#00f','#f0f','#f80','#3f0','#0ff','#808','#888'];
+
+    positionEditorActive: boolean = false;
+    positionEditorTemplateElementId = null;
+    positionEditorTool = null;
+    positionEditorPositions = [];
+    positionStartJointIndex = null;
+    positionArrows = [];
+
+    startPositionEditor(): boolean {
+        this.positionEditorActive = true;
+        this.positionEditorTemplateElementId = null;
+        this.positionEditorPositions = this.elements[this.currentElementIndex].element.positions;
+        this.positionArrows = this.getPositionArrows();
+        this.positionEditorTool = 'createPoint';
+
+        this.applicationRef.tick();
+        $(this.templateContainerRef.nativeElement).on('mousemove', (e) => {
+            if (this.positionEditorTool == 'createPoint') {
+                $('.positionEditorContainer .point.preview').css({
+                    left: e.offsetX - this.elements[this.currentElementIndex].element.stackElementRadius / 2 * this.templateFactor,
+                    top: e.offsetY - this.elements[this.currentElementIndex].element.stackElementRadius / 2 * this.templateFactor,
+                });
+            }
+        }).on('mouseleave', () => {
+            if (this.positionEditorTool == 'createPoint') {
+                $('.positionEditorContainer .point.preview').hide();
+            }
+        }).on('mouseenter', () => {
+            if (this.positionEditorTool == 'createPoint') {
+                $('.positionEditorContainer .point.preview').show();
+            }
+        }).on('click', (e) => {
+            if (this.positionEditorTool == 'createPoint') {
+                this.positionEditorPositions.push({
+                    index: this.positionEditorPositions.length + 1,
+                    x: (e.offsetX - this.getWidthOfTemplate() / 2 - this.templatePadding) / this.templateFactor,
+                    y: (e.offsetY - this.getHeightOfTemplate() / 2 - this.templatePadding) / this.templateFactor,
+                    next: {}
+                });
+            }
+        });
+
+        return false;
+    }
+    cancelPositionEditor(): boolean {
+        this.positionEditorActive = false;
+
+        return false;
+    }
+    savePositionEditor(): boolean {
+        this.elements[this.currentElementIndex].element.positions = this.positionEditorPositions;
+
+        this.positionEditorActive = false;
+
+        return false;
+    }
+    
+    getWidthOfTemplate(): number {
+        let originalWidth = 30;
+        
+        if (this.positionEditorTemplateElementId) {
+            switch (this.getElementById(this.positionEditorTemplateElementId).type) {
+                case 'board_v1':
+                case 'card_v1':
+                    originalWidth = this.getElementById(this.positionEditorTemplateElementId).element.width;
+                    break;
+                case 'tile_v1':
+                    originalWidth = this.getElementById(this.positionEditorTemplateElementId).element.radius;
+                    break;
+            }
+        }
+        
+        return originalWidth * this.templateFactor;
+    }
+    
+    getHeightOfTemplate(): number {
+        let originalHeight = 30;
+        
+        if (this.positionEditorTemplateElementId) {
+            switch (this.getElementById(this.positionEditorTemplateElementId).type) {
+                case 'board_v1':
+                case 'card_v1':
+                    originalHeight = this.getElementById(this.positionEditorTemplateElementId).element.height;
+                    break;
+                case 'tile_v1':
+                    originalHeight = this.getElementById(this.positionEditorTemplateElementId).element.radius;
+                    break;
+            }
+        }
+        
+        return originalHeight * this.templateFactor;
+    }
+
+    getImageOfTemplate(): string {
+        let image = '';
+
+        if (this.positionEditorTemplateElementId) {
+            let element = this.getElementById(this.positionEditorTemplateElementId).element;
+
+            switch (this.getElementById(this.positionEditorTemplateElementId).type) {
+                case 'board_v1':
+                    if (element.image) {
+                        image = element.image.src;
+                    }
+                    break;
+                case 'card_v1':
+                case 'tile_v1':
+                    if (element.frontImage) {
+                        image = element.frontImage.src;
+                    }
+                    break;
+            }
+        }
+
+        return image;
+    }
+
+    clickPoint(index): void {
+        if (this.positionEditorTool == 'deletePoint') {
+            for (let i = this.positionArrows.length - 1; i >= 0; i--) {
+                if (this.positionArrows[i].from == this.positionEditorPositions[index]) {
+                    this.positionArrows.splice(i, 1);
+                } else if (this.positionArrows[i].to == this.positionEditorPositions[index]) {
+                    for (let slotIndex in this.positionArrows[i].from.next) {
+                        if (!this.positionArrows[i].from.next.hasOwnProperty(slotIndex)) continue;
+                        if (this.positionArrows[i].allowedSlotIndexes.indexOf(slotIndex) == -1) continue;
+                        if (this.positionArrows[i].from.next[slotIndex].indexOf(this.positionArrows[i].to.index) == -1) continue;
+
+                        this.positionArrows[i].from.next[slotIndex].splice(this.positionArrows[i].from.next[slotIndex].indexOf(this.positionArrows[i].to.index), 1);
+                    }
+
+                    this.positionArrows.splice(i, 1);
+                }
+            }
+
+            this.positionEditorPositions.splice(index, 1);
+        }
+        if (this.positionEditorTool == 'createJoint') {
+            if (this.positionStartJointIndex === null) {
+                this.positionStartJointIndex = index;
+            } else if (this.positionStartJointIndex == index) {
+                this.positionStartJointIndex = null;
+            } else {
+                let allowedSlotIndexes = [];
+                for (let i = 0; i < this.templatePlayerCount; i++) {
+                    if (!$('#templatePlayerSlotIndex' + i).is(':checked')) continue;
+
+                    allowedSlotIndexes.push(i);
+
+                    if (typeof this.positionEditorPositions[this.positionStartJointIndex].next[i] == 'undefined') {
+                        this.positionEditorPositions[this.positionStartJointIndex].next[i] = [];
+                    }
+                    this.positionEditorPositions[this.positionStartJointIndex].next[i].push(this.positionEditorPositions[index].index);
+                }
+
+                if (allowedSlotIndexes.length > 0) {
+                    this.positionArrows.push({
+                        from: this.positionEditorPositions[this.positionStartJointIndex],
+                        to: this.positionEditorPositions[index],
+                        allowedSlotIndexes: allowedSlotIndexes
+                    });
+
+                    this.positionStartJointIndex = index;
+                }
+            }
+        }
+    }
+
+    clickJoint(arrow) {
+        if (this.positionEditorTool == 'deleteJoint') {
+            for (let slotIndex in arrow.from.next) {
+                if (!arrow.from.next.hasOwnProperty(slotIndex)) continue;
+                if (arrow.allowedSlotIndexes.indexOf(slotIndex) == -1) continue;
+                if (arrow.from.next[slotIndex].indexOf(arrow.to.index) == -1) continue;
+
+                arrow.from.next[slotIndex].splice(arrow.from.next[slotIndex].indexOf(arrow.to.index), 1);
+            }
+
+            this.positionArrows.splice(this.positionArrows.indexOf(arrow), 1);
+        }
+    }
+
+    getPositionArrows(): any {
+        let arrows = [];
+        for (let sourcePosition of this.positionEditorPositions) {
+            let targets = {};
+            for (let slotIndex in sourcePosition.next) {
+                if (!sourcePosition.next.hasOwnProperty(slotIndex)) continue;
+
+                for (let targetIndex of sourcePosition.next[slotIndex]) {
+                    if (typeof targets[targetIndex] == 'undefined') {
+                        targets[targetIndex] = [];
+                    }
+                    targets[targetIndex].push(slotIndex);
+                }
+            }
+
+            for (let targetIndex in targets) {
+                if (!targets.hasOwnProperty(targetIndex)) continue;
+
+                for (let targetPosition of this.positionEditorPositions) {
+                    if (targetPosition.index != targetIndex) continue;
+
+                    arrows.push({
+                        from: sourcePosition,
+                        to: targetPosition,
+                        allowedSlotIndexes: targets[targetIndex]
+                    });
+                }
+            }
+        }
+
+        return arrows;
+    }
+
+    selectAllSlotIndexes() {
+        for (let slotIndex of this.templatePlayerSlotIndexes) {
+            if (!$('#templatePlayerSlotIndex' + slotIndex).is(':checked')) {
+                $('#templatePlayerSlotIndex' + slotIndex).parent().click();
+            }
+        }
+    }
+
+    deselectAllSlotIndexes() {
+        for (let slotIndex of this.templatePlayerSlotIndexes) {
+            if ($('#templatePlayerSlotIndex' + slotIndex).is(':checked')) {
+                $('#templatePlayerSlotIndex' + slotIndex).parent().click();
+            }
+        }
     }
 }

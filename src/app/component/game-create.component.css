@@ -1,4 +1,5 @@
-.sceneContainer {
+.sceneContainer,
+.positionEditorContainer {
     position: absolute;
     left: 0;
     top: 0;
@@ -74,4 +75,50 @@
 
 .modalAttributeInput {
     position: relative;
+}
+
+/**
+ * PieceContainer-Position-Editor
+ */
+.positionEditorContainer {
+    background-color: rgba(0,0,0,0.5);
+    z-index: 100;
+}
+.alert-white {
+    background-color: #fff;
+    border-color: #eee;
+}
+.overflow-auto {
+    overflow: auto;
+}
+.positionTemplateContainer {
+    overflow: hidden;
+    margin: auto;
+    position: relative;
+}
+.positionTemplateContainer .positionTemplateBackground {
+    background-color: #000;
+    background-position: center;
+}
+.positionTemplateContainer .point {
+    position: absolute;
+    left: -100000000px;
+    top:  -100000000px;
+    background-color: #fff;
+    border: 2px solid #000;
+}
+.positionTemplateContainer.deletePoint .point:hover {
+    background-color: #f33;
+    border: 1px solid #f11;
+}
+.positionTemplateContainer.createJoint .point:hover,
+.positionTemplateContainer.createJoint .point.selected {
+    background-color: #afa;
+    border: 1px solid #8f8;
+}
+.positionTemplateContainer .positionTemplateBackground,
+.positionTemplateContainer .arrowContainer {
+    position: absolute;
+    left: 0;
+    top: 0;
 }

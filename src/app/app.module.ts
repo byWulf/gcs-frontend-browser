@@ -29,6 +29,7 @@ import {WindowRefService} from "./service/windowRef.service";
 
 import {Angular2AutoScroll} from "angular2-auto-scroll/lib/angular2-auto-scroll.directive";
 import {SafeHtmlPipe} from "./pipe/safeHtml.pipe";
+import {SafeStylePipe} from "./pipe/safeStyle.pipe";
 import { CookieModule } from 'ngx-cookie';
 
 
@@ -54,6 +55,7 @@ import { CookieModule } from 'ngx-cookie';
         MatchesComponent,
         Angular2AutoScroll,
         SafeHtmlPipe,
+        SafeStylePipe,
         UserRegisterComponent,
         UserLoginComponent,
         ConnectionStatusComponent,
