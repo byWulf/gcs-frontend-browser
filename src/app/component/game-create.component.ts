@@ -428,7 +428,8 @@ export class GameCreateComponent {
             parent: {
                 id: 'packageContainer'
             },
-            element: {}
+            element: {},
+            tags: options ? options.tags.slice() : []
         };
 
         for (let option of definition.options) {
@@ -568,6 +569,7 @@ export class GameCreateComponent {
      */
     bulkCreateKey:string = null;
     bulkCreateCount:number = 0;
+    bulkCreateTags = [];
 
     startBulkCreate(typeKey): boolean {
         this.bulkCreateKey = null;
@@ -575,6 +577,7 @@ export class GameCreateComponent {
 
         this.bulkCreateKey = typeKey;
         this.bulkCreateCount = 0;
+        this.bulkCreateTags = [];
 
         $('#bulkCreateModal')['modal']('show');
 
@@ -596,6 +599,7 @@ export class GameCreateComponent {
                     options[option.key] = this.transformAttributeValue(this.bulkCreateKey, option.key, document.getElementById('game-create-bulkcreate-' + option.key));
                 }
             }
+            options['tags'] = this.bulkCreateTags;
 
             this.addElement(this.bulkCreateKey, options);
         }

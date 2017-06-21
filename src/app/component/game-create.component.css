@@ -60,6 +60,7 @@
     width: 50%;
     padding-left: 10px;
     position: relative;
+    overflow: hidden;
 }
 
 .attribute-input .inputOverlay,

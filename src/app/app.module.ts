@@ -31,6 +31,7 @@ import {Angular2AutoScroll} from "angular2-auto-scroll/lib/angular2-auto-scroll.
 import {SafeHtmlPipe} from "./pipe/safeHtml.pipe";
 import {SafeStylePipe} from "./pipe/safeStyle.pipe";
 import { CookieModule } from 'ngx-cookie';
+import { TagInputModule } from 'ng2-tag-input';
 
 
 @NgModule({
@@ -41,7 +42,9 @@ import { CookieModule } from 'ngx-cookie';
         HttpModule,
         AppRoutingModule,
         CommonModule,
-        CookieModule.forRoot()
+        CookieModule.forRoot(),
+        TagInputModule,
+
     ],
     declarations: [
         LayoutComponent,

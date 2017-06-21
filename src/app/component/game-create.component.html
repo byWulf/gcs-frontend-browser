@@ -80,6 +80,12 @@
                                     </div>
                                 </li>
                             </ng-container>
+                            <li class="list-group-item">
+                                <label class="attribute-label" [for]="'game-create-options-tags'">Tags</label>
+                                <div class="attribute-input">
+                                    <tag-input [id]="'game-create-options-tags'" [(ngModel)]="elements[currentElementIndex].tags"></tag-input>
+                                </div>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -153,6 +159,14 @@
                             </div>
                         </div>
                     </ng-container>
+                    <div class="form-group row">
+                        <label [for]="'game-create-bulkcreate-tags'" class="col-6 col-form-label">Tags</label>
+                        <div class="col-6">
+                            <div class="modalAttributeInput">
+                                <tag-input [id]="'game-create-bulkcreate-tags'" [(ngModel)]="bulkCreateTags" [ngModelOptions]="{standalone: true}"></tag-input>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary" [disabled]="bulkCreateCount == 0">{{bulkCreateCount}} erstellen</button>
