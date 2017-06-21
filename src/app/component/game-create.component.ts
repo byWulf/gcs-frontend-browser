@@ -28,6 +28,7 @@ export class GameCreateComponent {
             ]
         },{
             key: 'board_v1',
+            idPrefix: 'board',
             label: 'Spielbrett',
             labelPlural: 'Spielbretter',
             options: [
@@ -50,6 +51,7 @@ export class GameCreateComponent {
             ]
         },{
             key: 'button_v1',
+            idPrefix: 'button',
             label: 'Button',
             labelPlural: 'Button',
             options: [
@@ -68,6 +70,7 @@ export class GameCreateComponent {
             onHide: (element) => { this.visualization.handleGameEvent('button.permissionChanged', {id: element.id, canBeClicked: false}) }
         },{
             key: 'card_v1',
+            idPrefix: 'card',
             label: 'Karte',
             labelPlural: 'Karten',
             options: [
@@ -139,6 +142,7 @@ export class GameCreateComponent {
             }
         },{
             key: 'cardContainer_v1',
+            idPrefix: 'cardContainer',
             label: 'Kartenstapel (Container für Karten)',
             labelPlural: 'Kartenstapel (Container für Karten)',
             options: [
@@ -193,6 +197,7 @@ export class GameCreateComponent {
             ]
         },{
             key: 'dice_v1',
+            idPrefix: 'dice',
             label: 'Würfel',
             labelPlural: 'Würfel',
             options: [
@@ -234,6 +239,7 @@ export class GameCreateComponent {
             }
         },{
             key: 'piece_v1',
+            idPrefix: 'piece',
             label: 'Spielfigur',
             labelPlural: 'Spielfiguren',
             options: [
@@ -258,6 +264,7 @@ export class GameCreateComponent {
             }
         },{
             key: 'pieceContainer_v1',
+            idPrefix: 'pieceContainer',
             label: 'Spielfigur-Positionen',
             labelPlural: 'Spielfigur-Positionen',
             options: [
@@ -276,6 +283,7 @@ export class GameCreateComponent {
             ]
         },{
             key: 'tile_v1',
+            idPrefix: 'tile',
             label: 'Plättchen',
             labelPlural: 'Plättchen',
             options: [
@@ -350,6 +358,7 @@ export class GameCreateComponent {
             }
         },{
             key: 'tileContainer_v1',
+            idPrefix: 'tileContainer',
             label: 'Plättchenanordnung (Container für Plättchen)',
             labelPlural: 'Plättchenanordnungen (Container für Plättchen)',
             options: [
@@ -413,7 +422,7 @@ export class GameCreateComponent {
         }
 
         let element = {
-            id: typeKey + '_' + count,
+            id: definition.idPrefix + '_' + count,
             type: typeKey,
             parent: {
                 id: 'packageContainer'
