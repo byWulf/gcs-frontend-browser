@@ -17,7 +17,9 @@ export class GameCreateComponent {
 
     elementTypes = [{
             key: 'autoResizeContainer_v1',
+            idPrefix: 'autoResizeContainer',
             label: 'Autoresize-Container',
+            labelPlural: 'Autoresize-Container',
             options: [
                 {
                     key: 'spacing',
