@@ -1,7 +1,6 @@
 import {ApplicationRef, Component, ElementRef, ViewChild} from '@angular/core';
 import {Visualization} from 'gcs-frontend-browser-matchvisualization-3d';
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
-import {Router} from "@angular/router";
 import {WindowRefService} from "../service/windowRef.service";
 
 @Component({
@@ -388,7 +387,6 @@ export class GameCreateComponent {
 
     constructor(
         private windowRef: WindowRefService,
-        private router: Router,
         private applicationRef:ApplicationRef
     ) {}
 
@@ -407,6 +405,7 @@ export class GameCreateComponent {
         });
     }
 
+    // noinspection JSUnusedGlobalSymbols
     ngAfterViewInit(): void {
         this.visualizationReady.next(true);
     }
@@ -541,7 +540,7 @@ export class GameCreateComponent {
         return inputElement['value'];
     }
 
-    updateAttribute(key, value): boolean {
+    updateAttribute(key): boolean {
         if (this.currentElementIndex === null) return false;
 
         let currentElement = this.elements[this.currentElementIndex];
@@ -834,16 +833,18 @@ export class GameCreateComponent {
 
     selectAllSlotIndexes() {
         for (let slotIndex of this.templatePlayerSlotIndexes) {
-            if (!$('#templatePlayerSlotIndex' + slotIndex).is(':checked')) {
-                $('#templatePlayerSlotIndex' + slotIndex).parent().click();
+            let elem = $('#templatePlayerSlotIndex' + slotIndex);
+            if (!elem.is(':checked')) {
+                elem.parent().click();
             }
         }
     }
 
     deselectAllSlotIndexes() {
         for (let slotIndex of this.templatePlayerSlotIndexes) {
-            if ($('#templatePlayerSlotIndex' + slotIndex).is(':checked')) {
-                $('#templatePlayerSlotIndex' + slotIndex).parent().click();
+            let elem = $('#templatePlayerSlotIndex' + slotIndex);
+            if (elem.is(':checked')) {
+                elem.parent().click();
             }
         }
     }
