@@ -3,8 +3,8 @@
     <div class="flex-grow-1 d-flex">
         <div class="treeContainer pointer-auto">
             <ul class="nav nav-tabs nav-fill" role="tablist">
-                <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#game-create-elements" role="tab">Elemente</a></li>
-                <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#game-create-sequence" role="tab">Ablauf</a></li>
+                <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#game-create-elements" role="tab" (click)="sequenceCurrentItem = null">Elemente</a></li>
+                <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#game-create-sequence" role="tab" (click)="selectElement(null)">Ablauf</a></li>
             </ul>
             <div class="tab-content">
                 <div class="tab-pane full-height active" id="game-create-elements" role="tabpanel">
@@ -32,7 +32,14 @@
                     </div>
                 </div>
                 <div class="tab-pane full-height" id="game-create-sequence" role="tabpanel">
-                    foobar
+                    <div class="full-height d-flex flex-column">
+                        <button class="btn btn-secondary" (click)="createSequence()">Neue Sequenz anlegen</button>
+                        <div class="treeList flex-grow-1">
+                            <div class="list-group">
+                                <recursiveTree [nodes]="sequences" (selectItem)="selectSequenceItem($event)" [currentNode]="sequenceCurrentItem" [possibleCommands]="possibleCommands" (addCommand)="addCommand($event.id, $event.section, $event.command)" (deleteItem)="deleteItem($event)" (moveUp)="moveItemUp($event)" (moveDown)="moveItemDown($event)"></recursiveTree>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -86,6 +93,109 @@
                                     <tag-input [id]="'game-create-options-tags'" [(ngModel)]="elements[currentElementIndex].tags"></tag-input>
                                 </div>
                             </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="treeContainer wideTree pointer-auto" *ngIf="sequenceCurrentItem !== null">
+            <ul class="nav nav-tabs nav-fill" role="tablist">
+                <li class="nav-item"><a class="nav-link active"  data-toggle="tab" href="#game-create-sequencesettings">Eigenschaften</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane full-height active d-flex flex-column" id="game-create-sequencesettings" role="tabpanel">
+                    <div class="treeList flex-grow-1">
+                        <ul class="list-group">
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'sequence'">
+                                <li class="list-group-item">
+                                    <label class="attribute-label" [for]="'game-create-command-sequence'">Aufzurufende Sequenz</label>
+                                    <div class="attribute-input" *ngIf="getCustomSequences().length">
+                                        <select [id]="'game-create-command-sequence'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.sequence = $event.target.value">
+                                            <option value="">-- Bitte auswählen --</option>
+                                            <option [value]="sequence.id" *ngFor="let sequence of getCustomSequences()" [selected]="getSequenceById(sequenceCurrentItem).options.sequence == sequence.id ? 'selected' : ''">{{sequence.name}}</option>
+                                        </select>
+                                    </div>
+                                    <div class="attribute-input" *ngIf="!getCustomSequences().length">
+                                        Bitte zuerst eine eigene Sequenz erstellen.
+                                    </div>
+                                </li>
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'if'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'for'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'foreach'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'while'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'points'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'wait'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'move'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'use'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'change'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'notification'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'status'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'progress'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'finish'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'sleep'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'break'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'custom'">
+
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command === null && getSequenceById(sequenceCurrentItem).deletable">
+                                <li class="list-group-item">
+                                    <label class="attribute-label" [for]="'game-create-command-label'">Bezeichnung</label>
+                                    <div class="attribute-input">
+                                        <input [id]="'game-create-command-label'" class="form-control" type="text" [value]="getSequenceById(sequenceCurrentItem).name" (input)="getSequenceById(sequenceCurrentItem).name = $event.target.value">
+                                    </div>
+                                </li>
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command === null && !getSequenceById(sequenceCurrentItem).deletable && getSequenceById(sequenceCurrentItem).name == 'onGameSetup'">
+                                <li class="list-group-item">
+                                    Diese Sequenz wird direkt beim Erstellen des Spiels ausgeführt. Hier sollten schonmal alle Elemente, die auf jedenfall für das Spiel benötigt werden, auf den Tisch gelegt werden.
+                                </li>
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command === null && !getSequenceById(sequenceCurrentItem).deletable && getSequenceById(sequenceCurrentItem).name == 'onPlayerJoin'">
+                                <li class="list-group-item">
+                                    Diese Sequenz wird aufgerufen, sobald ein Spieler an dem Tisch Platz nimmt. Hier können die Spielerspezifischen Elemente auf den Tisch gelegt werden (wie z.B. seine eigenen Spielfiguren, die natürlich nur gebraucht werden, wenn sein Slot gefüllt ist). Die Sequenz wird auch aufgerufen, wenn ein Spieler seinen Platz wechselt (nachdem bei seinem alten Platz die onPlayerLeave Sequenz aufgerufen wurde).
+                                </li>
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command === null && !getSequenceById(sequenceCurrentItem).deletable && getSequenceById(sequenceCurrentItem).name == 'onPlayerLeave'">
+                                <li class="list-group-item">
+                                    Diese Sequenz wird aufgerufen, sobald ein Spieler seinen Platz verlässt. Hier müssen wieder seine eigenen Spielfiguren/etc. vom Tisch genommen werden. Die Sequenz wird auch aufgerufen, wenn er seinen Platz nur wechselt.
+                                </li>
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command === null && !getSequenceById(sequenceCurrentItem).deletable && getSequenceById(sequenceCurrentItem).name == 'onGameStart'">
+                                <li class="list-group-item">
+                                    Diese Sequenz wird aufgerufen, sobald der Spielleiter die Partie startet. Hier sollte also die gesamte Spiellogik reinkommen. Läuft diese Sequenz zu Ende, endet das Spiel automatisch.
+                                </li>
+                            </ng-container>
                         </ul>
                     </div>
                 </div>

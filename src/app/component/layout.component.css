@@ -47,3 +47,7 @@ body {
 .mg-top-sm {
     margin-top: 5px;
 }
+.mg-top-bottom-sm {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}

@@ -2,6 +2,7 @@ import {ApplicationRef, Component, ElementRef, ViewChild} from '@angular/core';
 import {Visualization} from 'gcs-frontend-browser-matchvisualization-3d';
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {WindowRefService} from "../service/windowRef.service";
+import {RecursiveTreeComponent} from "./game-create/recursiveTree.component";
 
 @Component({
     moduleId: module.id,
@@ -853,5 +854,349 @@ export class GameCreateComponent {
                 elem.parent().click();
             }
         }
+    }
+
+    /**
+     * Sequences
+     */
+    possibleCommands = [
+        {key: 'control', label: 'Kontrollstrukturen', commands: [
+            {key: 'if', label: 'if/else', title: 'Falls die Bedingung zutrifft, dann (...), ansonsten (...)', defaultOptions: {'if': null}},
+            {key: 'for', label: 'for', title: 'Wiederhole (...) x mal', defaultOptions: {'count': 5}},
+            {key: 'foreach', label: 'foreach', title: 'Wiederhole (...) für jedes Item aus einer Liste', defaultOptions: {'list': null}},
+            {key: 'while', label: 'while', title: 'Wiederhole (...) solange, bis die Bedingung zutrifft', defaultOptions: {'condition': null}}
+        ]},
+        {key: 'player', label: 'Spielerbefehle', commands: [
+            {key: 'points', label: 'points', title: 'Gebe einem Spieler x Punkte oder setze seine Punkte auf x', defaultOptions: {'points': 1, 'mode': 'add'}},
+            {key: 'wait', label: 'wait', title: 'Warte auf eine Aktion eines Spielers', defaultOptions: {'action': null}}
+        ]},
+        {key: 'element', label: 'Elementbefehle', commands: [
+            {key: 'move', label: 'move', title: 'Verschiebt ein Element an einen anderen Ort', defaultOptions: {'element': null, 'target': null, 'data': null}},
+            {key: 'use', label: 'use', title: 'Ruft eine Funktion eines Elementes auf, z.B. Würfeln', defaultOptions: {'element': null, 'action': null}},
+            {key: 'change', label: 'change', title: 'Ändert Attribute eines Elements zur Laufzeit, z.B. Karte umdrehen', defaultOptions: {'element': null, 'option': null, 'value': null}}
+        ]},
+        {key: 'match', label: 'Partiebefehle', commands: [
+            {key: 'notification', label: 'notification', title: 'Fügt eine Mitteilung in den Chat ein (ggf. nur für einen bestimmten Spieler sichtbar)', defaultOptions: {'text': null}},
+            {key: 'status', label: 'status', title: 'Setzt den hervorgehobenen Status auf diesen Text', defaultOptions: {'text': null}},
+            {key: 'progress', label: 'progress', title: 'Setzt den Spielfortschritt auf die gegebene Prozentzahl', defaultOptions: {'percent': null}},
+            {key: 'finish', label: 'finish', title: 'Beendet die Partie an dieser Stelle (Gewinner wird der Spieler mit den meisten Punkten)', defaultOptions: {}}
+        ]},
+        {key: 'default', label: 'Sonstige Befehle', commands: [
+            {key: 'sequence', label: 'sequence', title: 'Ruft eine wiederverwendbare Sequenz auf', defaultOptions: {'sequence': null}},
+            {key: 'method', label: 'method', title: 'Ruft eine wiederverwendbare und zuvor definierte Methode auf', defaultOptions: {'code': null}},
+            {key: 'sleep', label: 'sleep', title: 'Warte eine gegebene Zeit, bis mit dem Programmablauf fortgefahren wird', defaultOptions: {'time': 1000}},
+            {key: 'break', label: 'break', title: 'Verlässt die aktuelle (oder falls gewünscht höhere) Schleife', defaultOptions: {'hirarchy': 1}}
+        ]}
+    ];
+    nextSequenceId = 5;
+    sequences = [
+        {id: 1, command: null, name: 'onGameSetup', canHaveChildren: true, children: {'': []}, deletable: false},
+        {id: 2, command: null, name: 'onPlayerJoin', canHaveChildren: true, children: {'': []}, deletable: false},
+        {id: 3, command: null, name: 'onPlayerLeave', canHaveChildren: true, children: {'': []}, deletable: false},
+        {id: 4, command: null, name: 'onGameStart', canHaveChildren: true, children: {'': []}, deletable: false}
+    ];
+    sequenceCurrentItem = null;
+
+    createSequence(): boolean {
+        this.sequences.push({id: this.nextSequenceId, command: null, name: 'unnamedSequence_' + this.nextSequenceId, canHaveChildren: true, children: {'': []}, deletable: true});
+
+        this.selectSequenceItem(this.nextSequenceId);
+
+        this.nextSequenceId++;
+
+        return false;
+    }
+
+    selectSequenceItem(id): boolean {
+        this.sequenceCurrentItem = id;
+
+        return false;
+    }
+
+    getCommandDefinition(command) {
+        for (let category of this.possibleCommands) {
+            for (let innerCommand of category.commands) {
+                if (innerCommand.key == command) {
+                    return innerCommand;
+                }
+            }
+        }
+        return null;
+    }
+
+    getSequenceById(id, sequences = null) {
+        if (sequences == null) {
+            sequences = this.sequences;
+        }
+
+        for (let sequence of sequences) {
+            if (sequence.id == id) {
+                return sequence;
+            }
+            if (sequence.canHaveChildren) {
+                for (let key in sequence.children) {
+                    if (!sequence.children.hasOwnProperty(key)) continue;
+
+                    let result = this.getSequenceById(id, sequence.children[key]);
+                    if (result) {
+                        return result;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    getSequenceParentOfId(id, parent = null) {
+        if (parent == null) {
+            parent = {id: 0, canHaveChildren: true, children: {'': this.sequences}};
+        }
+
+        for (let key in parent.children) {
+            if (!parent.children.hasOwnProperty(key)) continue;
+
+            for (let child of parent.children[key]) {
+                if (child.id == id) {
+                    return parent;
+                }
+                if (child.canHaveChildren) {
+                    let result = this.getSequenceParentOfId(id, child);
+                    if (result) {
+                        return result;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    addCommand(id, section, command) {
+        if (['for', 'foreach', 'while'].indexOf(command) > -1) {
+            this.getSequenceById(id).children[section].push({
+                id: this.nextSequenceId,
+                command: command,
+                name: command + '_' + this.nextSequenceId,
+                options: this.getCommandDefinition(command).defaultOptions,
+                canHaveChildren: true,
+                children: {'': []},
+                deletable: true
+            });
+        } else if (['if'].indexOf(command) > -1) {
+            this.getSequenceById(id).children[section].push({
+                id: this.nextSequenceId,
+                command: command,
+                name: command + '_' + this.nextSequenceId,
+                options: this.getCommandDefinition(command).defaultOptions,
+                canHaveChildren: true,
+                children: {
+                    'then': [],
+                    'else': []
+                },
+                deletable: true
+            });
+        } else {
+            this.getSequenceById(id).children[section].push({
+                id: this.nextSequenceId,
+                command: command,
+                name: command + '_' + this.nextSequenceId,
+                options: this.getCommandDefinition(command).defaultOptions,
+                canHaveChildren: false,
+                deletable: true
+            });
+        }
+
+        this.selectSequenceItem(this.nextSequenceId);
+
+        this.nextSequenceId++;
+
+        return false;
+    }
+
+    deleteItem(id, sequences = null) {
+        if (sequences == null) {
+            sequences = this.sequences;
+        }
+
+        this.sequenceCurrentItem = null;
+
+        for (let i = 0; i < sequences.length; i++) {
+            if (sequences[i].id == id) {
+                sequences.splice(i, 1);
+            } else if (sequences[i].canHaveChildren) {
+                for (let key in sequences[i].children) {
+                    if (!sequences[i].children.hasOwnProperty(key)) continue;
+
+                    this.deleteItem(id, sequences[i].children[key]);
+                }
+            }
+        }
+    }
+
+    moveItemUp(id) {
+        let item = this.getSequenceById(id);
+        let parent = this.getSequenceParentOfId(id);
+
+        let previousSection = null;
+        for (let key in parent.children) {
+            if (!parent.children.hasOwnProperty(key)) continue;
+
+            let index = parent.children[key].indexOf(item);
+            if (index == -1) {
+                previousSection = key;
+                continue;
+            }
+
+            //Falls das Item nicht das erste im aktuellen Parent ist
+            if (index > 0) {
+
+                //Falls das Item davor ebenfalls Children aufnehmen kann, dort ganz ans Ende in dessen Children aufnehmen
+                if (parent.children[key][index - 1].canHaveChildren) {
+                    parent.children[key].splice(index, 1);
+
+                    let lastKey = null;
+                    for (let innerKey in parent.children[key][index - 1].children) {
+                        if (parent.children[key][index - 1].children.hasOwnProperty(innerKey)) {
+                            lastKey = innerKey;
+                        }
+                    }
+                    parent.children[key][index - 1].children[lastKey].push(item);
+                    return;
+                }
+
+                //Ansonsten einfach um 1 nach vorne in den aktuellen Children seines Parents schieben
+                parent.children[key].splice(index, 1);
+                parent.children[key].splice(index - 1, 0, item);
+                return;
+            }
+
+            //Ansonsten falls das Parent mehrere Sections hat, und man nicht in der ersten Section ganz oben steht, in die vorherige Section ans Ende schieben
+            if (previousSection !== null) {
+                parent.children[key].splice(index, 1);
+                parent.children[previousSection].push(item);
+                return;
+            }
+
+            //Ansonsten falls es schon in der äußersten Ebene ganz oben ist, nichts machen
+            if (parent.id == 0) {
+                return;
+            }
+
+            //Ansonsten schiebe es in der Children-Liste des Parents vom Parent eins nach vorne
+            let grandParent = this.getSequenceParentOfId(parent.id);
+            if (grandParent.id != 0) {
+                for (let grandKey in grandParent.children) {
+                    if (!grandParent.children.hasOwnProperty(grandKey)) continue;
+
+                    let grandIndex = grandParent.children[grandKey].indexOf(parent);
+                    if (grandIndex == -1) continue;
+
+                    parent.children[key].splice(index, 1);
+                    grandParent.children[grandKey].splice(grandIndex, 0, item);
+                    return;
+                }
+            }
+            //Falls es in der Sequence schon ganz unten ist, und es nicht die letzte Sequence ist, schiebe es in die nächste Sequence an den Anfang.
+            if (grandParent.id == 0) {
+                let grandIndex = grandParent.children[''].indexOf(parent);
+                if (grandIndex > 0) {
+                    parent.children[key].splice(index, 1);
+                    grandParent.children[''][grandIndex - 1].children[''].push(item);
+                }
+            }
+        }
+    }
+
+    moveItemDown(id) {
+        let item = this.getSequenceById(id);
+        let parent = this.getSequenceParentOfId(id);
+
+        for (let key in parent.children) {
+            if (!parent.children.hasOwnProperty(key)) continue;
+
+            let index = parent.children[key].indexOf(item);
+            if (index == -1) continue;
+
+            //Falls das Item nicht das letzte im aktuellen Parent ist
+            if (index < parent.children[key].length - 1) {
+
+                //Falls das Item danach ebenfalls Children aufnehmen kann, dort ganz ans Anfang in dessen Children aufnehmen
+                if (parent.children[key][index + 1].canHaveChildren) {
+
+                    let firstKey = null;
+                    for (let innerKey in parent.children[key][index + 1].children) {
+                        if (parent.children[key][index + 1].children.hasOwnProperty(innerKey)) {
+                            firstKey = innerKey;
+                            break;
+                        }
+                    }
+                    parent.children[key].splice(index, 1);
+                    parent.children[key][index].children[firstKey].unshift(item);
+                    return;
+                }
+
+                //Ansonsten einfach um 1 nach hinten in den aktuellen Children seines Parents schieben
+                parent.children[key].splice(index, 1);
+                parent.children[key].splice(index + 1, 0, item);
+                return;
+            }
+
+            //Ansonsten falls das Parent mehrere Sections hat, und man nicht in der letzten Section ganz unten steht, in die nächste Section an den Anfang schieben
+            let startCompare = false;
+            for (let nextSection in parent.children) {
+                if (!parent.children.hasOwnProperty(nextSection)) continue;
+
+                if (startCompare) {
+                    parent.children[key].splice(index, 1);
+                    parent.children[nextSection].unshift(item);
+                    return;
+                }
+
+                if (nextSection == key) {
+                    startCompare = true;
+                }
+            }
+
+            //Ansonsten falls es schon in der äußersten Ebene ganz unten ist, nichts machen
+            if (parent.id == 0) {
+                return;
+            }
+
+            //Ansonsten schiebe es in der Children-Liste des Parents vom Parent eins nach hinten
+            let grandParent = this.getSequenceParentOfId(parent.id);
+            if (grandParent.id != 0) {
+                for (let grandKey in grandParent.children) {
+                    if (!grandParent.children.hasOwnProperty(grandKey)) continue;
+
+                    let grandIndex = grandParent.children[grandKey].indexOf(parent);
+                    if (grandIndex == -1) continue;
+
+                    parent.children[key].splice(index, 1);
+                    grandParent.children[grandKey].splice(grandIndex + 1, 0, item);
+                    return;
+                }
+            }
+            //Falls es in der Sequence schon ganz unten ist, und es nicht die letzte Sequence ist, schiebe es in die nächste Sequence an den Anfang.
+            if (grandParent.id == 0) {
+                let grandIndex = grandParent.children[''].indexOf(parent);
+                if (grandIndex < grandParent.children[''].length - 1) {
+                    parent.children[key].splice(index, 1);
+                    grandParent.children[''][grandIndex + 1].children[''].unshift(item);
+                }
+            }
+        }
+    }
+
+    getCustomSequences() {
+        let customSequences = [];
+
+        for (let sequence of this.sequences) {
+            if (sequence.deletable && sequence.command === null) {
+                customSequences.push(sequence);
+            }
+        }
+
+        return customSequences;
     }
 }

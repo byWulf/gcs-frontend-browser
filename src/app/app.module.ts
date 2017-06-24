@@ -32,6 +32,9 @@ import {SafeHtmlPipe} from "./pipe/safeHtml.pipe";
 import {SafeStylePipe} from "./pipe/safeStyle.pipe";
 import { CookieModule } from 'ngx-cookie';
 import { TagInputModule } from 'ng2-tag-input';
+import {RecursiveTreeComponent} from "./component/game-create/recursiveTree.component";
+import {ForObjectPipe} from "./pipe/forObjectPipe";
+import {AceEditorDirective} from "ng2-ace-editor";
 
 
 @NgModule({
@@ -57,12 +60,16 @@ import { TagInputModule } from 'ng2-tag-input';
         MatchNavbarComponent,
         MatchesComponent,
         Angular2AutoScroll,
+        AceEditorDirective,
         SafeHtmlPipe,
         SafeStylePipe,
+        ForObjectPipe,
         UserRegisterComponent,
         UserLoginComponent,
         ConnectionStatusComponent,
-        ImpressumComponent
+        ImpressumComponent,
+
+        RecursiveTreeComponent
     ],
     providers: [
         GameService,

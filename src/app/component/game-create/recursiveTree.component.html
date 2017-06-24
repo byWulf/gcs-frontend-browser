@@ -1,0 +1,47 @@
+<ng-container *ngFor="let node of nodes">
+    <div class="list-group-item" [ngClass]="{'active': node.id == currentNode}" *ngIf="node.canHaveChildren">
+        <div class="full-width">
+            <a href="#" class="inline-list-group-item code command" [ngClass]="'sequence' + getCategoryForCommand(node.command).key.toUpperCase().substr(0,1) + getCategoryForCommand(node.command).key.substr(1) + 'Group command' + node.command.toUpperCase().substr(0,1) + node.command.substr(1)" (click)="onSelectItem(node.id)" *ngIf="node.command">
+                {{node.command}}
+            </a>
+            <a href="#" class="inline-list-group-item" (click)="onSelectItem(node.id)" *ngIf="!node.command">
+                {{node.name}}
+            </a>
+            <span class="collapseToggle" data-toggle="collapse" [attr.data-target]="'#recursiveTree_' + node.id"><i class="fa fa-caret-up"></i></span>
+            <a href="#" class="moveUp treeIcon" (click)="onMoveUp(node.id)" *ngIf="node.deletable && node.command !== null"><i class="fa fa-angle-up"></i></a>
+            <a href="#" class="moveDown treeIcon" (click)="onMoveDown(node.id)" *ngIf="node.deletable && node.command !== null"><i class="fa fa-angle-down"></i></a>
+            <a href="#" class="deleteCommand treeIcon" (click)="onDeleteItem(node.id)" *ngIf="node.deletable"><i class="fa fa-trash"></i></a>
+        </div>
+        <div class="full-width">
+            <div class="nested collapse show" [id]="'recursiveTree_' + node.id">
+                <ng-container *ngFor="let children of node.children | forObject">
+                    <h6 class="sectionCaption code command" [ngClass]="'sequence' + getCategoryForCommand(node.command).key.toUpperCase().substr(0,1) + getCategoryForCommand(node.command).key.substr(1) + 'Group command' + node.command.toUpperCase().substr(0,1) + node.command.substr(1) + ' commandSection commandSection' + children.key.toUpperCase().substr(0,1) + children.key.substr(1)" *ngIf="children.key">
+                        <i class="fa fa-commandSection"></i> {{children.key}}
+                    </h6>
+                    <div class="list-group">
+                        <recursiveTree [nodes]="children.value" [currentNode]="currentNode" [possibleCommands]="possibleCommands" (selectItem)="onSelectItem($event)" (addCommand)="onAddCommand($event.id, $event.section, $event.command)" (deleteItem)="onDeleteItem($event)" (moveUp)="onMoveUp($event)" (moveDown)="onMoveDown($event)"></recursiveTree>
+                        <button class="btn btn-secondary btn-sm mg-top-bottom-sm dropdown-toggle" data-toggle="dropdown">Befehl hinzufügen</button>
+                        <div class="dropdown-menu">
+                            <ng-container *ngFor="let category of possibleCommands; let isLast = last">
+                                <h6 class="dropdown-header">{{category.label}}</h6>
+                                <button class="dropdown-item code" [ngClass]="'sequence' + category.key.toUpperCase().substr(0,1) + category.key.substr(1) + 'Group'" *ngFor="let command of category.commands" [title]="command.description" (click)="onAddCommand(node.id, children.key, command.key)">{{command.label}}</button>
+                                <div class="dropdown-divider" *ngIf="!isLast"></div>
+                            </ng-container>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="list-group-item" [ngClass]="{'active': node.id == currentNode}" *ngIf="!node.canHaveChildren" (click)="onSelectItem(node.id)">
+        <span *ngIf="node.command" [ngClass]="'code command sequence' + getCategoryForCommand(node.command).key.toUpperCase().substr(0,1) + getCategoryForCommand(node.command).key.substr(1) + 'Group command' + node.command.toUpperCase().substr(0,1) + node.command.substr(1)">
+            <i class="fa fa-commandIcon"></i> {{node.command}}
+        </span>
+        <span *ngIf="!node.command">
+            {{node.name}}
+        </span>
+        <a href="#" class="moveUp treeIcon" (click)="onMoveUp(node.id)" *ngIf="node.deletable && node.command !== null"><i class="fa fa-angle-up"></i></a>
+        <a href="#" class="moveDown treeIcon" (click)="onMoveDown(node.id)" *ngIf="node.deletable && node.command !== null"><i class="fa fa-angle-down"></i></a>
+        <a href="#" class="deleteCommand treeIcon" (click)="onDeleteItem(node.id)" *ngIf="node.deletable"><i class="fa fa-trash"></i></a>
+    </a>
+</ng-container>

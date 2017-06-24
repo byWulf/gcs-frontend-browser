@@ -1,0 +1,171 @@
+.collapseToggle {
+    padding: 2px 8px;
+    position: absolute;
+    left: -20px;
+    top: -2px;
+    cursor: pointer;
+}
+
+.collapseToggle .fa:before {
+    content:'\f0d7';
+}
+.collapseToggle:hover .fa:before {
+    content:'\f0d8';
+}
+
+.collapseToggle.collapsed .fa:before {
+    content:'\f0d8';
+}
+.collapseToggle.collapsed:hover .fa:before {
+    content:'\f0d7';
+}
+
+.nested {
+    margin-right: -16px;
+    margin-bottom: -13px;
+}
+.nested.collapse {
+    overflow: hidden;
+    min-height: 12px;
+    height: 12px;
+    display: block;
+}
+.nested.collapse.show {
+    overflow: visible;
+    height: auto;
+}
+
+.full-width {
+    width: 100%;
+    position: relative;
+}
+.list-group-item {
+    position: relative;
+}
+.inline-list-group-item {
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-flow: row wrap;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    flex-flow: row wrap;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    padding: 0.75rem 1.25rem 0.75rem 0.5rem;
+    margin: -0.75rem -1.25rem 0 0;
+    text-decoration: none;
+}
+
+.dropdown-item.code,
+.command.code {
+    font-family: Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+}
+.sequenceControlGroup {
+    color: #a1bd50;
+}
+.sequencePlayerGroup {
+    color: #42bcbb;
+}
+.sequenceElementGroup {
+    color: #c16431;
+}
+.sequenceMatchGroup {
+    color: #a265c4;
+}
+.sequenceDefaultGroup {
+    color: #5a5a5a;
+}
+.sectionCaption {
+    margin-left: -10px;
+    font-weight: normal
+}
+.deleteCommand {
+    position: absolute;
+    right: -18px;
+    top: -9px;
+    padding: 2px 4px;
+    font-size: 20px;
+}
+.list-group-item > .deleteCommand {
+    right: 2px;
+    top: 7px;
+}
+.moveUp {
+    position: absolute;
+    right: 6px;
+    top: -16px;
+    padding: 2px 4px 0 4px;
+    font-size: 16px;
+}
+.list-group-item > .moveUp {
+    right: 26px;
+    top: 0;
+}
+.moveDown {
+    position: absolute;
+    right: 6px;
+    top: 7px;
+    padding: 0 4px 2px 4px;
+    font-size: 16px;
+}
+.list-group-item > .moveDown {
+    right: 26px;
+    top: 23px;
+}
+.treeIcon, .treeIcon:hover, .treeIcon:focus, .treeIcon:active {
+    text-decoration: none;
+}
+.list-group-item.active {
+    background-color: #fff;
+    color: #333;
+    box-shadow: 0 0 10px #0275d8 inset;
+}
+
+.command.commandSequence .fa-commandIcon:before {
+    content: '\f0a9'; /*fa-arrow-circle-right*/
+}
+.command.commandPoints .fa-commandIcon:before {
+    content: '\f0d6'; /*fa-money*/
+}
+.command.commandWait .fa-commandIcon:before {
+    content: '\f0f4'; /*fa-coffee*/
+}
+.command.commandMove .fa-commandIcon:before {
+    content: '\f047'; /*fa-arrows*/
+}
+.command.commandUse .fa-commandIcon:before {
+    content: '\f1d9'; /*fa-paper-plane-o*/
+}
+.command.commandChange .fa-commandIcon:before {
+    content: '\f0ad'; /*fa-wrench*/
+}
+.command.commandNotification .fa-commandIcon:before {
+    content: '\f27b'; /*fa-commenting-o*/
+}
+.command.commandStatus .fa-commandIcon:before {
+    content: '\f0a1'; /*fa-bullhorn*/
+}
+.command.commandProgress .fa-commandIcon:before {
+    content: '\f253'; /*fa-hourglass-end*/
+}
+.command.commandFinish .fa-commandIcon:before {
+    content: '\f091'; /*fa-trophy*/
+}
+.command.commandSleep .fa-commandIcon:before {
+    content: '\f017'; /*fa-clock-o*/
+}
+.command.commandBreak .fa-commandIcon:before {
+    content: '\f177'; /*fa-long-arrow-left*/
+}
+.command.commandMethod .fa-commandIcon:before {
+    content: '\f121'; /*fa-code*/
+}
+.commandSection.commandSectionThen .fa-commandSection:before {
+    content: '\f00c'; /*fa-check*/
+}
+.commandSection.commandSectionElse .fa-commandSection:before {
+    content: '\f00d'; /*fa-times*/
+}
