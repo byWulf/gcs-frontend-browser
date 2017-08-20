@@ -35,7 +35,8 @@
             'three': 'npm:three',
             'cannon': 'npm:cannon',
             'tween.js': 'npm:tween.js',
-            'threejs-dice': 'npm:threejs-dice'
+            'threejs-dice': 'npm:threejs-dice',
+            'ace-builds': 'npm:ace-builds'
         },
         // packages tells the System loader how to load when no filename and/or no extension
         packages: {

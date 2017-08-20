@@ -1,10 +1,11 @@
 <div class="sceneContainer" #sceneContainer></div>
 <div class="overlay d-flex flex-column pointer-none">
     <div class="flex-grow-1 d-flex">
-        <div class="treeContainer pointer-auto">
+        <div class="treeContainer wideTree pointer-auto">
             <ul class="nav nav-tabs nav-fill" role="tablist">
-                <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#game-create-elements" role="tab" (click)="sequenceCurrentItem = null">Elemente</a></li>
-                <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#game-create-sequence" role="tab" (click)="selectElement(null)">Ablauf</a></li>
+                <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#game-create-elements" role="tab" (click)="sequenceCurrentItem = null; selectMethod(null)">Elemente</a></li>
+                <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#game-create-sequence" role="tab" (click)="selectElement(null); selectMethod(null)">Ablauf</a></li>
+                <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#game-create-methods" role="tab" (click)="selectElement(null); sequenceCurrentItem = null">Methoden</a></li>
             </ul>
             <div class="tab-content">
                 <div class="tab-pane full-height active" id="game-create-elements" role="tabpanel">
@@ -41,9 +42,35 @@
                         </div>
                     </div>
                 </div>
+                <div class="tab-pane full-height" id="game-create-methods" role="tabpanel">
+                    <div class="full-height d-flex flex-column">
+                        <button class="btn btn-secondary" (click)="createMethod()">Neue Methode anlegen</button>
+                        <div class="treeList flex-grow-1">
+                            <div class="list-group">
+                                <a href="#" *ngFor="let method of methods; let i = index" class="list-group-item" [ngClass]="{'active': currentMethodIndex == i}" (click)="selectMethod(i)">{{method.name}}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="flex-grow-1"></div>
+
+        <div class="flex-grow-1" *ngIf="currentMethodIndex === null"></div>
+        <div class="treeContainer fullWidthTree pointer-auto" *ngIf="currentMethodIndex !== null">
+            <ul class="nav nav-tabs nav-fill" role="tablist">
+                <li class="nav-item"><a class="nav-link active"  data-toggle="tab" href="#">Codeeditor</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="aceEditor" ace-editor [(text)]="methods[currentMethodIndex].code"
+                     [mode]="'javascript'"
+                     [theme]="'eclipse'"
+                     [options]="methodOptions"
+                     [readOnly]="false"
+                     [autoUpdateContent]="true"
+                ></div>
+            </div>
+        </div>
+
         <div class="treeContainer wideTree pointer-auto" *ngIf="currentElementIndex !== null">
             <ul class="nav nav-tabs nav-fill" role="tablist">
                 <li class="nav-item"><a class="nav-link active"  data-toggle="tab" href="#game-create-attributes">{{elements[currentElementIndex].id}}</a></li>
@@ -100,26 +127,12 @@
         </div>
         <div class="treeContainer wideTree pointer-auto" *ngIf="sequenceCurrentItem !== null">
             <ul class="nav nav-tabs nav-fill" role="tablist">
-                <li class="nav-item"><a class="nav-link active"  data-toggle="tab" href="#game-create-sequencesettings">Eigenschaften</a></li>
+                <li class="nav-item"><a class="nav-link active"  data-toggle="tab" href="#game-create-sequencesettings">Eigenschaften von {{getSequenceById(sequenceCurrentItem).command}}</a></li>
             </ul>
             <div class="tab-content">
                 <div class="tab-pane full-height active d-flex flex-column" id="game-create-sequencesettings" role="tabpanel">
                     <div class="treeList flex-grow-1">
                         <ul class="list-group">
-                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'sequence'">
-                                <li class="list-group-item">
-                                    <label class="attribute-label" [for]="'game-create-command-sequence'">Aufzurufende Sequenz</label>
-                                    <div class="attribute-input" *ngIf="getCustomSequences().length">
-                                        <select [id]="'game-create-command-sequence'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.sequence = $event.target.value">
-                                            <option value="">-- Bitte auswählen --</option>
-                                            <option [value]="sequence.id" *ngFor="let sequence of getCustomSequences()" [selected]="getSequenceById(sequenceCurrentItem).options.sequence == sequence.id ? 'selected' : ''">{{sequence.name}}</option>
-                                        </select>
-                                    </div>
-                                    <div class="attribute-input" *ngIf="!getCustomSequences().length">
-                                        Bitte zuerst eine eigene Sequenz erstellen.
-                                    </div>
-                                </li>
-                            </ng-container>
                             <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'if'">
 
                             </ng-container>
@@ -139,34 +152,312 @@
 
                             </ng-container>
                             <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'move'">
+                                <li class="list-group-item">
+                                    <label class="attribute-label" [for]="'game-create-command-mode'">Selektier-Modus</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-mode'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.mode = $event.target.value">
+                                            <option value="element" [selected]="getSequenceById(sequenceCurrentItem).options.mode == 'element' ? 'selected' : ''">Bestimmtes Element</option>
+                                            <option value="tag" [selected]="getSequenceById(sequenceCurrentItem).options.mode == 'tags' ? 'selected' : ''">Passend auf Tag</option>
+                                            <option value="loop" [selected]="getSequenceById(sequenceCurrentItem).options.mode == 'loop' ? 'selected' : ''">Aktuelles Schleifenelement</option>
+                                            <option value="method" [selected]="getSequenceById(sequenceCurrentItem).options.mode == 'method' ? 'selected' : ''">Methodenaufruf</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.mode == 'element'">
+                                    <label class="attribute-label" [for]="'game-create-command-element'">Element</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-element'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.element = $event.target.value">
+                                            <option value="">-- Bitte wählen --</option>
+                                            <option [value]="element.id" *ngFor="let element of elements" [selected]="getSequenceById(sequenceCurrentItem).options.element == element.id ? 'selected' : ''">{{element.id}}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.mode == 'tag'">
+                                    <label class="attribute-label" [for]="'game-create-command-tag'">Alle Element mit Tag</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-tag'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.tag = $event.target.value">
+                                            <option value="">-- Bitte wählen --</option>
+                                            <option [value]="tag.value" *ngFor="let tag of getDistinctTags()" [selected]="getSequenceById(sequenceCurrentItem).options.tag == tag.value ? 'selected' : ''">{{tag.display}}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.mode == 'loop'">
+                                    <label class="attribute-label" [for]="'game-create-command-loop'">Element aus ForEach</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-loop'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.loop = $event.target.value">
+                                            <option value="">-- Bitte wählen --</option>
+                                            <option [value]="loop.id" *ngFor="let loop of getOuterForEachLoops(sequenceCurrentItem)" [selected]="getSequenceById(sequenceCurrentItem).options.loop == loop.id ? 'selected' : ''">{{getCommandDefinition(loop.command).displayText(loop)}}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.mode == 'method'">
+                                    <label class="attribute-label" [for]="'game-create-command-method'">Element(e) aus Methode</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-method'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.method = $event.target.value">
+                                            <option value="">-- Bitte wählen --</option>
+                                            <option [value]="method.id" *ngFor="let method of methods" [selected]="getSequenceById(sequenceCurrentItem).options.method == method.id ? 'selected' : ''">{{method.name}}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.mode == 'method'">
+                                    Die Methode muss ein Array von Elementen zurückgeben. Alternativ können auch nur die IDs der Elemente zurückgegeben werden. Es ist auch möglich, lediglich ein Elemente bzw. eine ID zurückzugeben.
+                                </li>
 
-                            </ng-container>
-                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'use'">
-
+                                <li class="list-group-item">
+                                    <label class="attribute-label" [for]="'game-create-command-targetmode'">Ziel-Modus</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-targetmode'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.targetmode = $event.target.value">
+                                            <option value="element" [selected]="getSequenceById(sequenceCurrentItem).options.targetmode == 'element' ? 'selected' : ''">Bestimmtes Element</option>
+                                            <option value="loop" [selected]="getSequenceById(sequenceCurrentItem).options.targetmode == 'loop' ? 'selected' : ''">Aktuelles Schleifenelement</option>
+                                            <option value="method" [selected]="getSequenceById(sequenceCurrentItem).options.targetmode == 'method' ? 'selected' : ''">Methodenaufruf</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.targetmode == 'element'">
+                                    <label class="attribute-label" [for]="'game-create-command-targetelement'">Ziel-Element</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-targetelement'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.targetelement = $event.target.value">
+                                            <option value="">-- Bitte wählen --</option>
+                                            <option [value]="element.id" *ngFor="let element of elements" [selected]="getSequenceById(sequenceCurrentItem).options.targetelement == element.id ? 'selected' : ''">{{element.id}}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.targetmode == 'loop'">
+                                    <label class="attribute-label" [for]="'game-create-command-targetloop'">Ziel-Element aus ForEach</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-targetloop'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.targetloop = $event.target.value">
+                                            <option value="">-- Bitte wählen --</option>
+                                            <option [value]="loop.id" *ngFor="let loop of getOuterForEachLoops(sequenceCurrentItem)" [selected]="getSequenceById(sequenceCurrentItem).options.targetloop == loop.id ? 'selected' : ''">{{getCommandDefinition(loop.command).displayText(loop)}}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.targetmode == 'method'">
+                                    <label class="attribute-label" [for]="'game-create-command-method'">Ziel-Element aus Methode</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-method'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.targetmode = $event.target.value">
+                                            <option value="">-- Bitte wählen --</option>
+                                            <option [value]="method.id" *ngFor="let method of methods" [selected]="getSequenceById(sequenceCurrentItem).options.targetmode == method.id ? 'selected' : ''">{{method.name}}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.targetmode == 'method'">
+                                    Die Methode muss ein Element oder die ID eines Elementes zurückgeben.
+                                </li>
+                                <li class="list-group-item">
+                                    <label class="attribute-label" [for]="'game-create-command-targettype'">Ziel-Elementtyp</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-targettype'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.targettype = $event.target.value; getSequenceById(sequenceCurrentItem).options.targetdata = getDefaultTargetOptions($event.target.value)">
+                                            <option value="">-- Bitte wählen --</option>
+                                            <ng-container *ngFor="let elementType of elementTypes">
+                                                <option *ngIf="elementType.targetOptions !== null" [value]="elementType.key" [selected]="getSequenceById(sequenceCurrentItem).options.targettype == elementType.key ? 'selected' : ''">{{elementType.label}}</option>
+                                            </ng-container>
+                                        </select>
+                                    </div>
+                                </li>
+                                <ng-container *ngIf="getSequenceById(sequenceCurrentItem).options.targettype">
+                                    <ng-container *ngFor="let option of getElementDefinition(getSequenceById(sequenceCurrentItem).options.targettype).targetOptions">
+                                        <ng-container *ngIf="!isFunction(option.onlyIf) || option.onlyIf(getSequenceById(sequenceCurrentItem).options.targetdata)">
+                                            <li class="list-group-item" *ngIf="option.type == 'number'">
+                                                <label class="attribute-label" [for]="'game-create-command-targetoption-' + option.key">{{option.label}}</label>
+                                                <div class="attribute-input">
+                                                    <input [id]="'game-create-command-targetoption-' + option.key" class="form-control" type="number" step="1" [value]="getSequenceById(sequenceCurrentItem).options.targetdata[option.key]" (input)="getSequenceById(sequenceCurrentItem).options.targetdata[option.key] = $event.target.value">
+                                                </div>
+                                            </li>
+                                            <li class="list-group-item" *ngIf="option.type == 'select'">
+                                                <label class="attribute-label" [for]="'game-create-command-targetoption-' + option.key">{{option.label}}</label>
+                                                <div class="attribute-input">
+                                                    <select [id]="'game-create-command-targetoption-' + option.key" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.targetdata[option.key] = $event.target.value">
+                                                        <ng-container *ngFor="let value of option.values">
+                                                            <option  [value]="value.key" [selected]="getSequenceById(sequenceCurrentItem).options.targetdata[option.key] == value.key ? 'selected' : ''">{{value.label}}</option>
+                                                        </ng-container>
+                                                    </select>
+                                                </div>
+                                            </li>
+                                        </ng-container>
+                                    </ng-container>
+                                </ng-container>
                             </ng-container>
                             <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'change'">
-
+                                <li class="list-group-item">
+                                    <label class="attribute-label" [for]="'game-create-command-mode'">Modus</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-mode'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.mode = $event.target.value">
+                                            <option value="element" [selected]="getSequenceById(sequenceCurrentItem).options.mode == 'element' ? 'selected' : ''">Bestimmtes Element</option>
+                                            <option value="tag" [selected]="getSequenceById(sequenceCurrentItem).options.mode == 'tags' ? 'selected' : ''">Passend auf Tag</option>
+                                            <option value="loop" [selected]="getSequenceById(sequenceCurrentItem).options.mode == 'loop' ? 'selected' : ''">Aktuelles Schleifenelement</option>
+                                            <option value="method" [selected]="getSequenceById(sequenceCurrentItem).options.mode == 'method' ? 'selected' : ''">Methodenaufruf</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.mode == 'element'">
+                                    <label class="attribute-label" [for]="'game-create-command-element'">Element</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-element'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.element = $event.target.value">
+                                            <option value="">-- Bitte wählen --</option>
+                                            <option [value]="element.id" *ngFor="let element of elements" [selected]="getSequenceById(sequenceCurrentItem).options.element == element.id ? 'selected' : ''">{{element.id}}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.mode == 'tag'">
+                                    <label class="attribute-label" [for]="'game-create-command-tag'">Alle Element mit Tag</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-tag'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.tag = $event.target.value">
+                                            <option value="">-- Bitte wählen --</option>
+                                            <option [value]="tag.value" *ngFor="let tag of getDistinctTags()" [selected]="getSequenceById(sequenceCurrentItem).options.tag == tag.value ? 'selected' : ''">{{tag.display}}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.mode == 'loop'">
+                                    <label class="attribute-label" [for]="'game-create-command-loop'">Element aus ForEach</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-loop'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.loop = $event.target.value">
+                                            <option value="">-- Bitte wählen --</option>
+                                            <option [value]="loop.id" *ngFor="let loop of getOuterForEachLoops(sequenceCurrentItem)" [selected]="getSequenceById(sequenceCurrentItem).options.loop == loop.id ? 'selected' : ''">{{getCommandDefinition(loop.command).displayText(loop)}}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.mode == 'method'">
+                                    <label class="attribute-label" [for]="'game-create-command-method'">Methode</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-method'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.method = $event.target.value">
+                                            <option value="">-- Bitte wählen --</option>
+                                            <option [value]="method.id" *ngFor="let method of methods" [selected]="getSequenceById(sequenceCurrentItem).options.method == method.id ? 'selected' : ''">{{method.name}}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.mode == 'method'">
+                                    Die Methode muss ein Array von Elementen zurückgeben. Alternativ können auch nur die IDs der Elemente zurückgegeben werden. Es ist auch möglich, lediglich ein Elemente bzw. eine ID zurückzugeben.
+                                </li>
+                                <li class="list-group-item">
+                                    <label class="attribute-label" [for]="'game-create-command-option'">Eigenschaft</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-option'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.option = $event.target.value; getSequenceById(sequenceCurrentItem).options.value = ($event.target.value ? getElementAction($event.target.value).defaultValue : null)">
+                                            <option value="">-- Bitte wählen --</option>
+                                            <option [value]="action.key" *ngFor="let action of getPossibleElementActions()" [selected]="getSequenceById(sequenceCurrentItem).options.option == action.key ? 'selected' : ''">{{action.label}}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.option && getElementAction(getSequenceById(sequenceCurrentItem).options.option).type == 'select'">
+                                    <label class="attribute-label" [for]="'game-create-command-value'">Wert</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-value'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.value = $event.target.value">
+                                            <option [value]="value.key" *ngFor="let value of getElementAction(getSequenceById(sequenceCurrentItem).options.option).values" [selected]="getSequenceById(sequenceCurrentItem).options.value == value.key ? 'selected' : ''">{{value.label}}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.option && getElementAction(getSequenceById(sequenceCurrentItem).options.option).type == 'rotation'">
+                                    <label class="attribute-label" [for]="'game-create-command-value'">Wert</label>
+                                    <div class="attribute-input">
+                                        <input [id]="'game-create-command-value'" class="form-control hasOverlay" type="number" step="1" min="0" max="360" [value]="getSequenceById(sequenceCurrentItem).options.value" (input)="getSequenceById(sequenceCurrentItem).options.value = $event.target.value">
+                                        <span class="inputOverlay">°</span>
+                                    </div>
+                                </li>
                             </ng-container>
                             <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'notification'">
-
+                                <li class="list-group-item bigInput">
+                                    <label class="attribute-label" [for]="'game-create-command-text'">Text</label>
+                                    <div class="attribute-input">
+                                        <input [id]="'game-create-command-text'" class="form-control" type="text" [value]="getSequenceById(sequenceCurrentItem).options.text" (input)="getSequenceById(sequenceCurrentItem).options.text = $event.target.value">
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    Verwende den Platzhalter %currentPlayer%, damit dieser durch den Spieler ersetzt wird, der die letzte Aktion ausgeführt hat.
+                                </li>
+                                <li class="list-group-item" *ngFor="let loop of getOuterForEachLoops(sequenceCurrentItem)">
+                                    Verwende den Platzhalter %loop{{loop.id}}%, damit dieser durch den Spieler ersetzt wird, der in der {{getCommandDefinition(loop.command).displayText(loop)}}-Schleife gerade dran ist.
+                                </li>
                             </ng-container>
                             <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'status'">
-
+                                <li class="list-group-item bigInput">
+                                    <label class="attribute-label" [for]="'game-create-command-text'">Text</label>
+                                    <div class="attribute-input">
+                                        <input [id]="'game-create-command-text'" class="form-control" type="text" [value]="getSequenceById(sequenceCurrentItem).options.text" (input)="getSequenceById(sequenceCurrentItem).options.text = $event.target.value">
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    Verwende den Platzhalter %currentPlayer%, damit dieser durch den oder die (kommaseparierten) Spieler ersetzt wird, die gerade eine Aktion ausführen können.
+                                </li>
+                                <li class="list-group-item" *ngFor="let loop of getOuterForEachLoops(sequenceCurrentItem)">
+                                    Verwende den Platzhalter %loop{{loop.id}}%, damit dieser durch den Spieler ersetzt wird, der in der {{getCommandDefinition(loop.command).displayText(loop)}}-Schleife gerade dran ist.
+                                </li>
                             </ng-container>
                             <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'progress'">
-
+                                <li class="list-group-item">
+                                    <label class="attribute-label" [for]="'game-create-command-mode'">Modus</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-mode'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.mode = $event.target.value">
+                                            <option value="add" [selected]="getSequenceById(sequenceCurrentItem).options.mode == 'add' ? 'selected' : ''">Um Wert erhöhen</option>
+                                            <option value="set" [selected]="getSequenceById(sequenceCurrentItem).options.mode == 'set' ? 'selected' : ''">Auf Wert setzen</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <label class="attribute-label" [for]="'game-create-command-method'">Berechnende Methode</label>
+                                    <div class="attribute-input">
+                                        <select [id]="'game-create-command-method'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.method = $event.target.value; getSequenceById(sequenceCurrentItem).percent = $event.target.value ? null : 0">
+                                            <option value="">-- Fester Wert --</option>
+                                            <option [value]="method.id" *ngFor="let method of methods" [selected]="getSequenceById(sequenceCurrentItem).options.method == method.id ? 'selected' : ''">{{method.name}}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="!getSequenceById(sequenceCurrentItem).options.method">
+                                    <label class="attribute-label" [for]="'game-create-command-percent'">Fester Wert</label>
+                                    <div class="attribute-input">
+                                        <input [id]="'game-create-command-percent'" class="form-control hasOverlay" type="number" min="0" step="1" max="100" [value]="getSequenceById(sequenceCurrentItem).options.percent" (input)="getSequenceById(sequenceCurrentItem).options.percent = $event.target.value">
+                                        <span class="inputOverlay">%</span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" *ngIf="getSequenceById(sequenceCurrentItem).options.method">
+                                    Die Methode muss einen Wert zwischen 0 (= 0%) und 1 (= 100%) returnen.
+                                </li>
                             </ng-container>
                             <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'finish'">
 
                             </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'sequence'">
+                                <li class="list-group-item">
+                                    <label class="attribute-label" [for]="'game-create-command-sequence'">Aufzurufende Sequenz</label>
+                                    <div class="attribute-input" *ngIf="getCustomSequences().length">
+                                        <select [id]="'game-create-command-sequence'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.sequence = $event.target.value">
+                                            <option value="">-- Bitte auswählen --</option>
+                                            <option [value]="sequence.id" *ngFor="let sequence of getCustomSequences()" [selected]="getSequenceById(sequenceCurrentItem).options.sequence == sequence.id ? 'selected' : ''">{{sequence.name}}</option>
+                                        </select>
+                                    </div>
+                                    <div class="attribute-input" *ngIf="!getCustomSequences().length">
+                                        Bitte zuerst eine eigene Sequenz erstellen.
+                                    </div>
+                                </li>
+                            </ng-container>
+                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'method'">
+                                <li class="list-group-item">
+                                    <label class="attribute-label" [for]="'game-create-command-method'">Aufzurufende Methode</label>
+                                    <div class="attribute-input" *ngIf="methods.length">
+                                        <select [id]="'game-create-command-method'" class="form-control" (change)="getSequenceById(sequenceCurrentItem).options.method = $event.target.value">
+                                            <option value="">-- Bitte auswählen --</option>
+                                            <option [value]="method.id" *ngFor="let method of methods" [selected]="getSequenceById(sequenceCurrentItem).options.method == method.id ? 'selected' : ''">{{method.name}}</option>
+                                        </select>
+                                    </div>
+                                    <div class="attribute-input" *ngIf="!methods.length">
+                                        Bitte zuerst eine Methode erstellen.
+                                    </div>
+                                </li>
+                            </ng-container>
                             <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'sleep'">
-
+                                <li class="list-group-item">
+                                    <label class="attribute-label" [for]="'game-create-command-time'">Dauer</label>
+                                    <div class="attribute-input">
+                                        <input [id]="'game-create-command-time'" class="form-control hasOverlay" type="number" min="0" step="1000" [value]="getSequenceById(sequenceCurrentItem).options.time" (input)="getSequenceById(sequenceCurrentItem).options.time = $event.target.value">
+                                        <span class="inputOverlay">ms</span>
+                                    </div>
+                                </li>
                             </ng-container>
                             <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'break'">
-
-                            </ng-container>
-                            <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command == 'custom'">
-
+                                <li class="list-group-item">
+                                    <label class="attribute-label" [for]="'game-create-command-hirarchy'">Ebenen verlassen</label>
+                                    <div class="attribute-input">
+                                        <input [id]="'game-create-command-hirarchy'" class="form-control" type="number" min="1" step="1" [value]="getSequenceById(sequenceCurrentItem).options.hirarchy" (input)="getSequenceById(sequenceCurrentItem).options.hirarchy = $event.target.value">
+                                    </div>
+                                </li>
                             </ng-container>
                             <ng-container *ngIf="getSequenceById(sequenceCurrentItem).command === null && getSequenceById(sequenceCurrentItem).deletable">
                                 <li class="list-group-item">
@@ -196,6 +487,25 @@
                                     Diese Sequenz wird aufgerufen, sobald der Spielleiter die Partie startet. Hier sollte also die gesamte Spiellogik reinkommen. Läuft diese Sequenz zu Ende, endet das Spiel automatisch.
                                 </li>
                             </ng-container>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="treeContainer wideTree pointer-auto" *ngIf="currentMethodIndex !== null">
+            <ul class="nav nav-tabs nav-fill" role="tablist">
+                <li class="nav-item"><a class="nav-link active"  data-toggle="tab" href="#game-create-methodsettings">Eigenschaften</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane full-height active d-flex flex-column" id="game-create-methodsettings" role="tabpanel">
+                    <div class="treeList flex-grow-1">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <label class="attribute-label" [for]="'game-create-method-name'">Name</label>
+                                <div class="attribute-input">
+                                    <input [id]="'game-create-method-name'" class="form-control" type="text" [value]="methods[currentMethodIndex].name" (input)="methods[currentMethodIndex].name = $event.target.value">
+                                </div>
+                            </li>
                         </ul>
                     </div>
                 </div>

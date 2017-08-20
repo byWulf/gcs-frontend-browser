@@ -136,9 +136,6 @@
 .command.commandMove .fa-commandIcon:before {
     content: '\f047'; /*fa-arrows*/
 }
-.command.commandUse .fa-commandIcon:before {
-    content: '\f1d9'; /*fa-paper-plane-o*/
-}
 .command.commandChange .fa-commandIcon:before {
     content: '\f0ad'; /*fa-wrench*/
 }
@@ -168,4 +165,11 @@
 }
 .commandSection.commandSectionElse .fa-commandSection:before {
     content: '\f00d'; /*fa-times*/
+}
+
+.command {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 24px;
 }

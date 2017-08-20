@@ -2,7 +2,7 @@
     <div class="list-group-item" [ngClass]="{'active': node.id == currentNode}" *ngIf="node.canHaveChildren">
         <div class="full-width">
             <a href="#" class="inline-list-group-item code command" [ngClass]="'sequence' + getCategoryForCommand(node.command).key.toUpperCase().substr(0,1) + getCategoryForCommand(node.command).key.substr(1) + 'Group command' + node.command.toUpperCase().substr(0,1) + node.command.substr(1)" (click)="onSelectItem(node.id)" *ngIf="node.command">
-                {{node.command}}
+                {{getCommandByName(node.command).displayText(node)}}
             </a>
             <a href="#" class="inline-list-group-item" (click)="onSelectItem(node.id)" *ngIf="!node.command">
                 {{node.name}}
@@ -24,7 +24,9 @@
                         <div class="dropdown-menu">
                             <ng-container *ngFor="let category of possibleCommands; let isLast = last">
                                 <h6 class="dropdown-header">{{category.label}}</h6>
-                                <button class="dropdown-item code" [ngClass]="'sequence' + category.key.toUpperCase().substr(0,1) + category.key.substr(1) + 'Group'" *ngFor="let command of category.commands" [title]="command.description" (click)="onAddCommand(node.id, children.key, command.key)">{{command.label}}</button>
+                                <button class="dropdown-item code command" [ngClass]="'sequence' + category.key.toUpperCase().substr(0,1) + category.key.substr(1) + 'Group command' + command.key.toUpperCase().substr(0,1) + command.key.substr(1)" *ngFor="let command of category.commands" [title]="command.description" (click)="onAddCommand(node.id, children.key, command.key)">
+                                    <i class="fa fa-commandIcon"></i> {{command.label}}
+                                </button>
                                 <div class="dropdown-divider" *ngIf="!isLast"></div>
                             </ng-container>
                         </div>
@@ -35,7 +37,7 @@
     </div>
     <a href="#" class="list-group-item" [ngClass]="{'active': node.id == currentNode}" *ngIf="!node.canHaveChildren" (click)="onSelectItem(node.id)">
         <span *ngIf="node.command" [ngClass]="'code command sequence' + getCategoryForCommand(node.command).key.toUpperCase().substr(0,1) + getCategoryForCommand(node.command).key.substr(1) + 'Group command' + node.command.toUpperCase().substr(0,1) + node.command.substr(1)">
-            <i class="fa fa-commandIcon"></i> {{node.command}}
+            <i class="fa fa-commandIcon"></i> {{getCommandByName(node.command).displayText(node)}}
         </span>
         <span *ngIf="!node.command">
             {{node.name}}

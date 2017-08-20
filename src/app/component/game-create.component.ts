@@ -27,6 +27,21 @@ export class GameCreateComponent {
                     label: 'Abstand zwischen den Containerbereichen',
                     type: 'length'
                 }
+            ],
+            changeable: [],
+            targetOptions: [
+                {
+                    key: 'x',
+                    label: 'X-Position',
+                    type: 'number',
+                    defaultValue: 0
+                },
+                {
+                    key: 'y',
+                    label: 'Y-Position',
+                    type: 'number',
+                    defaultValue: 0
+                }
             ]
         },{
             key: 'board_v1',
@@ -50,7 +65,9 @@ export class GameCreateComponent {
                     label: 'Bild der Oberfläche',
                     type: 'image'
                 }
-            ]
+            ],
+            changeable: [],
+            targetOptions: []
         },{
             key: 'button_v1',
             idPrefix: 'button',
@@ -68,8 +85,10 @@ export class GameCreateComponent {
                     defaultValue: true
                 }
             ],
+            changeable: [],
             onShow: (element) => { this.visualization.handleGameEvent('button.permissionChanged', {id: element.id, canBeClicked: true}) },
-            onHide: (element) => { this.visualization.handleGameEvent('button.permissionChanged', {id: element.id, canBeClicked: false}) }
+            onHide: (element) => { this.visualization.handleGameEvent('button.permissionChanged', {id: element.id, canBeClicked: false}) },
+            targetOptions: null
         },{
             key: 'card_v1',
             idPrefix: 'card',
@@ -141,7 +160,52 @@ export class GameCreateComponent {
             bulk: {
                 type: 'file',
                 key: 'frontImage'
-            }
+            },
+            changeable: [
+                {
+                    key: 'card.sideChanged',
+                    label: '(Karte) Seite',
+                    type: 'select',
+                    values: [
+                        {
+                            key: 'front',
+                            label: 'Vorderseite'
+                        },{
+                            key: 'back',
+                            label: 'Rückseite'
+                        },{
+                            key: 'flip',
+                            label: 'Umdrehen (je nachdem)'
+                        }
+                    ],
+                    defaultValue: 'flip'
+                },
+                {
+                    key: 'card.rotationChanged',
+                    label: '(Karte) Rotation',
+                    type: 'rotation',
+                    defaultValue: 0
+                },
+                {
+                    key: 'card.selectionChanged',
+                    label: '(Karte) markiert',
+                    type: 'select',
+                    values: [
+                        {
+                            key: 'true',
+                            label: 'Ausgewählt'
+                        },{
+                            key: 'false',
+                            label: 'Nicht ausgewählt'
+                        },{
+                            key: 'switch',
+                            label: 'Ändern (je nachdem)'
+                        }
+                    ],
+                    defaultValue: 'switch'
+                }
+            ],
+            targetOptions: []
         },{
             key: 'cardContainer_v1',
             idPrefix: 'cardContainer',
@@ -196,6 +260,46 @@ export class GameCreateComponent {
                     ],
                     defaultValue: 'ordered'
                 }
+            ],
+            changeable: [],
+            targetOptions: [
+                {
+                    key: 'position',
+                    label: 'X-Position',
+                    type: 'number',
+                    defaultValue: 0
+                },
+                {
+                    key: 'indexMode',
+                    label: 'Z-Index-Modus',
+                    type: 'select',
+                    values: [
+                        {
+                            key: 'random',
+                            label: 'Zufall'
+                        },
+                        {
+                            key: 'top',
+                            label: 'Ganz oben'
+                        },
+                        {
+                            key: 'bottom',
+                            label: 'Ganz unten'
+                        },
+                        {
+                            key: 'fixed',
+                            label: 'Festgelegter Z-Index'
+                        }
+                    ],
+                    defaultValue: 'fixed'
+                },
+                {
+                    key: 'index',
+                    label: 'Z-Index',
+                    type: 'number',
+                    defaultValue: 0,
+                    onlyIf: (targetOptions) => targetOptions.indexMode == 'fixed'
+                }
             ]
         },{
             key: 'dice_v1',
@@ -207,38 +311,69 @@ export class GameCreateComponent {
                     key: 'value',
                     label: 'Initialer Wert oben',
                     type: 'select',
-                    values: [
-                        {
+                    values: [{
                             key: 1,
-                            value: '1'
+                            label: '1'
                         },
                         {
                             key: 2,
-                            value: '2'
+                            label: '2'
                         },
                         {
                             key: 3,
-                            value: '3'
+                            label: '3'
                         },
                         {
                             key: 4,
-                            value: '4'
+                            label: '4'
                         },
                         {
                             key: 5,
-                            value: '5'
+                            label: '5'
                         },
                         {
                             key: 6,
-                            value: '6'
+                            label: '6'
                         },
-                    ],
-                    defaultValue: 6
+                    ]
                 }
             ],
             bulk: {
                 type: 'count'
-            }
+            },
+            changeable: [
+                {
+                    key: 'dice.rolled',
+                    label: '(Würfel) angezeigter Wert',
+                    type: 'select',
+                    values: [
+                        {
+                            key: 'random',
+                            label: 'Zufall (neu würfeln)'
+                        },{
+                            key: '1',
+                            label: '1'
+                        },{
+                            key: '2',
+                            label: '2'
+                        },{
+                            key: '3',
+                            label: '3'
+                        },{
+                            key: '4',
+                            label: '4'
+                        },{
+                            key: '5',
+                            label: '5'
+                        },{
+                            key: '6',
+                            label: '6'
+                        }
+                    ],
+                    defaultValue: 'random'
+                }
+            ],
+            targetOptions: null
         },{
             key: 'piece_v1',
             idPrefix: 'piece',
@@ -263,7 +398,28 @@ export class GameCreateComponent {
             ],
             bulk: {
                 type: 'count'
-            }
+            },
+            changeable: [
+                {
+                    key: 'piece.layingChanged',
+                    label: '(Figur) liegend',
+                    type: 'select',
+                    values: [
+                        {
+                            key: 'laying',
+                            label: 'Liegend'
+                        },{
+                            key: 'standing',
+                            label: 'Stehend'
+                        },{
+                            key: 'switch',
+                            label: 'Ändern (je nachdem)'
+                        }
+                    ],
+                    defaultValue: 'switch'
+                }
+            ],
+            targetOptions: null
         },{
             key: 'pieceContainer_v1',
             idPrefix: 'pieceContainer',
@@ -281,6 +437,15 @@ export class GameCreateComponent {
                     label: 'Positionen',
                     type: 'pieceContainer_v1_positions',
                     defaultValue: []
+                }
+            ],
+            changeable: [],
+            targetOptions: [
+                {
+                    key: 'index',
+                    label: 'Feld-Index',
+                    type: 'number',
+                    defaultValue: 0
                 }
             ]
         },{
@@ -357,7 +522,34 @@ export class GameCreateComponent {
             bulk: {
                 type: 'file',
                 key: 'frontImage'
-            }
+            },
+            changeable: [
+                {
+                    key: 'tile.sideChanged',
+                    label: '(Plättchen) Seite',
+                    type: 'select',
+                    values: [
+                        {
+                            key: 'front',
+                            label: 'Vorderseite'
+                        },{
+                            key: 'back',
+                            label: 'Rückseite'
+                        },{
+                            key: 'flip',
+                            label: 'Umdrehen (je nachdem)'
+                        }
+                    ],
+                    defaultValue: 'flip'
+                },
+                {
+                    key: 'tile.rotationChanged',
+                    label: '(Plättchen) Rotation',
+                    type: 'rotation',
+                    defaultValue: 0
+                }
+            ],
+            targetOptions: []
         },{
             key: 'tileContainer_v1',
             idPrefix: 'tileContainer',
@@ -381,6 +573,52 @@ export class GameCreateComponent {
                     label: 'Abstand zwischen den Plättchen',
                     type: 'length',
                     defaultValue: 0.2
+                }
+            ],
+            changeable: [],
+            targetOptions: [
+                {
+                    key: 'x',
+                    label: 'X-Position',
+                    type: 'number',
+                    defaultValue: 0
+                },
+                {
+                    key: 'y',
+                    label: 'Y-Position',
+                    type: 'number',
+                    defaultValue: 0
+                },
+                {
+                    key: 'indexMode',
+                    label: 'Z-Index-Modus',
+                    type: 'select',
+                    values: [
+                        {
+                            key: 'random',
+                            label: 'Zufall'
+                        },
+                        {
+                            key: 'top',
+                            label: 'Ganz oben'
+                        },
+                        {
+                            key: 'bottom',
+                            label: 'Ganz unten'
+                        },
+                        {
+                            key: 'fixed',
+                            label: 'Festgelegter Z-Index'
+                        }
+                    ],
+                    defaultValue: 'fixed'
+                },
+                {
+                    key: 'index',
+                    label: 'Z-Index',
+                    type: 'number',
+                    defaultValue: 0,
+                    onlyIf: (targetOptions) => targetOptions.indexMode == 'fixed'
                 }
             ]
         }
@@ -861,31 +1099,30 @@ export class GameCreateComponent {
      */
     possibleCommands = [
         {key: 'control', label: 'Kontrollstrukturen', commands: [
-            {key: 'if', label: 'if/else', title: 'Falls die Bedingung zutrifft, dann (...), ansonsten (...)', defaultOptions: {'if': null}},
-            {key: 'for', label: 'for', title: 'Wiederhole (...) x mal', defaultOptions: {'count': 5}},
-            {key: 'foreach', label: 'foreach', title: 'Wiederhole (...) für jedes Item aus einer Liste', defaultOptions: {'list': null}},
-            {key: 'while', label: 'while', title: 'Wiederhole (...) solange, bis die Bedingung zutrifft', defaultOptions: {'condition': null}}
+            {key: 'if', label: 'if/else', title: 'Falls die Bedingung zutrifft, dann (...), ansonsten (...)', defaultOptions: {'if': null}, displayText: (node) => node.command},
+            {key: 'for', label: 'for', title: 'Wiederhole (...) x mal', defaultOptions: {'count': 5}, displayText: (node) => node.command},
+            {key: 'foreach', label: 'foreach', title: 'Wiederhole (...) für jedes Item aus einer Liste', defaultOptions: {'list': null}, displayText: (node) => node.command},
+            {key: 'while', label: 'while', title: 'Wiederhole (...) solange, bis die Bedingung zutrifft', defaultOptions: {'condition': null}, displayText: (node) => node.command}
         ]},
         {key: 'player', label: 'Spielerbefehle', commands: [
-            {key: 'points', label: 'points', title: 'Gebe einem Spieler x Punkte oder setze seine Punkte auf x', defaultOptions: {'points': 1, 'mode': 'add'}},
-            {key: 'wait', label: 'wait', title: 'Warte auf eine Aktion eines Spielers', defaultOptions: {'action': null}}
+            {key: 'points', label: 'points', title: 'Gebe einem Spieler x Punkte oder setze seine Punkte auf x', defaultOptions: {'points': 1, 'mode': 'add'}, displayText: (node) => node.command},
+            {key: 'wait', label: 'wait', title: 'Warte auf eine Aktion eines Spielers', defaultOptions: {'action': null}, displayText: (node) => node.command}
         ]},
         {key: 'element', label: 'Elementbefehle', commands: [
-            {key: 'move', label: 'move', title: 'Verschiebt ein Element an einen anderen Ort', defaultOptions: {'element': null, 'target': null, 'data': null}},
-            {key: 'use', label: 'use', title: 'Ruft eine Funktion eines Elementes auf, z.B. Würfeln', defaultOptions: {'element': null, 'action': null}},
-            {key: 'change', label: 'change', title: 'Ändert Attribute eines Elements zur Laufzeit, z.B. Karte umdrehen', defaultOptions: {'element': null, 'option': null, 'value': null}}
+            {key: 'move', label: 'move', title: 'Verschiebt ein Element an einen anderen Ort', defaultOptions: {'mode': 'element', 'element': null, 'tag': null, 'loop': null, 'method': null, 'targetmode': 'element', 'targetelement': null, 'targetloop': null, 'targetmethod': null, 'targettype': null, 'targetdata': {}}, displayText: (node) => node.command},
+            {key: 'change', label: 'change', title: 'Ändert Attribute eines Elements zur Laufzeit, z.B. Karte umdrehen', defaultOptions: {'mode': 'element', 'element': null, 'tag': null, 'loop': null, 'method': null, 'option': null, 'value': null}, displayText: (node) => node.options.option ? node.options.option + ' -> ' + node.options.value : node.command}
         ]},
         {key: 'match', label: 'Partiebefehle', commands: [
-            {key: 'notification', label: 'notification', title: 'Fügt eine Mitteilung in den Chat ein (ggf. nur für einen bestimmten Spieler sichtbar)', defaultOptions: {'text': null}},
-            {key: 'status', label: 'status', title: 'Setzt den hervorgehobenen Status auf diesen Text', defaultOptions: {'text': null}},
-            {key: 'progress', label: 'progress', title: 'Setzt den Spielfortschritt auf die gegebene Prozentzahl', defaultOptions: {'percent': null}},
-            {key: 'finish', label: 'finish', title: 'Beendet die Partie an dieser Stelle (Gewinner wird der Spieler mit den meisten Punkten)', defaultOptions: {}}
+            {key: 'notification', label: 'notification', title: 'Fügt eine Mitteilung in den Chat ein (ggf. nur für einen bestimmten Spieler sichtbar)', defaultOptions: {'text': null}, displayText: (node) => node.options.text || node.command},
+            {key: 'status', label: 'status', title: 'Setzt den hervorgehobenen Status auf diesen Text', defaultOptions: {'text': null}, displayText: (node) => node.options.text || node.command},
+            {key: 'progress', label: 'progress', title: 'Setzt oder erhöht den Spielfortschritt auf die gegebene Prozentzahl', defaultOptions: {'mode': 'set', 'percent': 0, 'method': null}, displayText: (node) => (node.options.mode == 'add' ? '+ ' : '') + (node.options.method ? this.getMethodById(node.options.method).name + '()' : (node.options.percent + ' %'))},
+            {key: 'finish', label: 'finish', title: 'Beendet die Partie an dieser Stelle (Gewinner wird der Spieler mit den meisten Punkten)', defaultOptions: {}, displayText: (node) => node.command}
         ]},
         {key: 'default', label: 'Sonstige Befehle', commands: [
-            {key: 'sequence', label: 'sequence', title: 'Ruft eine wiederverwendbare Sequenz auf', defaultOptions: {'sequence': null}},
-            {key: 'method', label: 'method', title: 'Ruft eine wiederverwendbare und zuvor definierte Methode auf', defaultOptions: {'code': null}},
-            {key: 'sleep', label: 'sleep', title: 'Warte eine gegebene Zeit, bis mit dem Programmablauf fortgefahren wird', defaultOptions: {'time': 1000}},
-            {key: 'break', label: 'break', title: 'Verlässt die aktuelle (oder falls gewünscht höhere) Schleife', defaultOptions: {'hirarchy': 1}}
+            {key: 'sequence', label: 'sequence', title: 'Ruft eine wiederverwendbare Sequenz auf', defaultOptions: {'sequence': null}, displayText: (node) => node.options.sequence ? this.getSequenceById(node.options.sequence).name : node.command},
+            {key: 'method', label: 'method', title: 'Ruft eine wiederverwendbare und zuvor definierte Methode auf', defaultOptions: {'method': null}, displayText: (node) => node.options.method ? this.getMethodById(node.options.method).name + '()' : node.command},
+            {key: 'sleep', label: 'sleep', title: 'Warte eine gegebene Zeit, bis mit dem Programmablauf fortgefahren wird', defaultOptions: {'time': 1000}, displayText: (node) => node.command + ' ' + node.options.time + 'ms'},
+            {key: 'break', label: 'break', title: 'Verlässt die aktuelle (oder falls gewünscht höhere) Schleife', defaultOptions: {'hirarchy': 1}, displayText: (node) => node.command + (node.options.hirarchy > 1 ? ' ' + node.options.hirarchy : '')}
         ]}
     ];
     nextSequenceId = 5;
@@ -1198,5 +1435,121 @@ export class GameCreateComponent {
         }
 
         return customSequences;
+    }
+
+
+    /**
+     * Methoden
+     */
+    methods = [];
+    currentMethodIndex = null;
+    methodOptions = {
+        printMargin: false,
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: true
+    };
+
+    createMethod() {
+        let method = {
+            id: this.methods.length + 1,
+            name: 'unnamedMethod_' + this.methods.length,
+            code: ''
+        };
+
+        this.methods.push(method);
+
+        this.selectMethod(this.methods.length - 1);
+
+        return false;
+    }
+
+    selectMethod(index) {
+        this.currentMethodIndex = index;
+
+        return false;
+    }
+
+    getMethodById(id) {
+        for (let method of this.methods) {
+            if (method.id == id) {
+                return method;
+            }
+        }
+
+        return null;
+    }
+
+    getDistinctTags() {
+        let tags = [];
+
+        for (let element of this.elements) {
+            for (let tag of element.tags) {
+                let found = false;
+                for (let existingTag of tags) {
+                    if (existingTag.value == tag.value) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    tags.push(tag);
+                }
+            }
+        }
+
+        tags.sort();
+
+        return tags;
+    }
+
+    getOuterForEachLoops(sequenceItem) {
+        let parent = this.getSequenceParentOfId(sequenceItem);
+        if (!parent || parent.command === null) {
+            return [];
+        }
+
+        let loops = this.getOuterForEachLoops(parent.id);
+
+        if (parent.command == 'foreach') {
+            loops.unshift(parent);
+        }
+
+        return loops;
+    }
+
+    getPossibleElementActions() {
+        let actions = [];
+
+        for (let elementType of this.elementTypes) {
+            for (let changeable of elementType.changeable) {
+                actions.push(changeable);
+            }
+        }
+
+        return actions;
+    }
+    getElementAction(actionKey) {
+        for (let action of this.getPossibleElementActions()) {
+            if (action.key == actionKey) {
+                return action;
+            }
+        }
+
+        return null;
+    }
+    getDefaultTargetOptions(elementType) {
+        let elementDefinition = this.getElementDefinition(elementType);
+        let defaultTargetOptions = {};
+
+        for (let option of elementDefinition.targetOptions) {
+            defaultTargetOptions[option.key] = option.defaultValue;
+        }
+
+        return defaultTargetOptions;
+    }
+
+    isFunction(value) {
+        return typeof value == 'function';
     }
 }

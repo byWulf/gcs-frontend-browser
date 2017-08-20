@@ -56,4 +56,15 @@ export class RecursiveTreeComponent {
         }
         return null;
     }
+
+    getCommandByName(command): string {
+        for (let category of this.possibleCommands) {
+            for (let innerCommand of category.commands) {
+                if (innerCommand.key == command) {
+                    return innerCommand;
+                }
+            }
+        }
+        return null;
+    }
 }

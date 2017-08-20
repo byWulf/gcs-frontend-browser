@@ -54,12 +54,18 @@
     white-space: nowrap;
     margin-bottom: 0;
 }
+.bigInput > .attribute-label {
+    width: 20%;
+}
 
 .attribute-input {
     width: 50%;
     padding-left: 10px;
     position: relative;
     overflow: hidden;
+}
+.bigInput > .attribute-input {
+    width: 80%;
 }
 
 .attribute-input .inputOverlay,
@@ -121,4 +127,13 @@
     position: absolute;
     left: 0;
     top: 0;
+}
+
+.fullWidthTree {
+    flex-grow: 1;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.aceEditor {
+    height: 100%;
 }
