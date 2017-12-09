@@ -27,8 +27,8 @@
                         <p class="card-text text-muted" *ngIf="game.minPlayers != game.maxPlayers">Für {{game.minPlayers}} bis {{game.maxPlayers}} Spieler.</p>
                     </div>
                     <div class="card-footer">
-                        <a [routerLink]="['/matches/create', game.key]" class="btn btn-primary disabled" *ngIf="!user || !game.contractWithOwner || user.currentMatch">Erstellen</a>
-                        <a [routerLink]="['/matches/create', game.key]" class="btn btn-primary" *ngIf="user && game.contractWithOwner && !user.currentMatch">Erstellen</a>
+                        <a [routerLink]="['/matches/create', game.key]" class="btn btn-primary disabled" *ngIf="!user || (!game.contractWithOwner && !hasRole('admin')) || user.currentMatch">Erstellen</a>
+                        <a [routerLink]="['/matches/create', game.key]" class="btn btn-primary" *ngIf="user && (game.contractWithOwner || hasRole('admin')) && !user.currentMatch">Erstellen</a>
 
 
                         <a [routerLink]="['/matches/list', game.key]" class="btn btn-secondary" *ngIf="!user || user.currentMatch">Zuschauen</a>

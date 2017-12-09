@@ -51,4 +51,8 @@ export class GamesComponent implements OnInit, OnDestroy {
             }
         });
     }
+
+    hasRole(role): boolean {
+        return this.user && this.user.roles.indexOf(role) > -1;
+    }
 }
